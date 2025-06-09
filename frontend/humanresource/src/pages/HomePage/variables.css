@@ -1,0 +1,24 @@
+/* src/styles/variables.css */
+:root {
+    --primary-dark:   #0A1F44;
+    --primary-mid:    #004E7C;
+    --accent:         #F4B740;
+    --accent-dark:    #E0A23A;    /* SignIn hover için */
+    --white:          #FFFFFF;
+}
+
+/* --------------------------
+   RESET ve BODY GRADIENT
+--------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(180deg, var(--primary-dark), var(--primary-mid));
+    color: var(--white);
+    min-height: 100vh;
+}

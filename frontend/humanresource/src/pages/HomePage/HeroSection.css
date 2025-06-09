@@ -1,0 +1,90 @@
+.hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6rem 3rem;
+}
+
+/* Mobilde alt alta dizilsin */
+@media (max-width: 768px) {
+    .hero-section {
+        flex-direction: column-reverse;
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+}
+
+.hero-text {
+    flex: 1;
+    max-width: 500px;
+}
+
+.hero-text h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: var(--white);
+}
+
+.hero-text p {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.cta-btn {
+    background: var(--accent);
+    color: var(--primary-dark);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 0.375rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease,
+    box-shadow 0.2s ease;
+}
+
+.cta-btn:hover,
+.cta-btn:focus {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.hero-image-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+/* Arka plandaki iki overlap kutu */
+.shadow-box {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    background: rgba(10, 31, 68, 0.8);
+    border-radius: 1rem;
+}
+
+.shadow-box-1 {
+    top: 2rem;
+    right: 2rem;
+}
+
+.shadow-box-2 {
+    top: 1rem;
+    right: 1rem;
+}
+
+.hero-image {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    border-radius: 1rem;                        /* Yuvarlak köşe */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);   /* Yumuşak gölge */
+}

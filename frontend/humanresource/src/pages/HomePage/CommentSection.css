@@ -1,0 +1,69 @@
+/* TestimonialsSection.css */
+
+/* Bölüm genel stili */
+.testimonials-section {
+    background-color: #ffffff;      /* Beyaz zemin */
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+/* Başlık */
+.testimonials-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 2.5rem;
+}
+
+/* Grid düzeni */
+.testimonials-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .testimonials-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Her bir yorum kartı */
+.testimonial-card {
+    background: #f8f7f4;            /* Çok açık krem */
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Kullanıcı avatarı */
+.testimonial-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 2px solid var(--accent);
+}
+
+/* Alıntı metni */
+.testimonial-quote {
+    font-style: italic;
+    color: #4a4a4a;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+}
+
+/* İsim ve rol */
+.testimonial-name {
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 0.25rem;
+}
+.testimonial-role {
+    font-size: 0.875rem;
+    color: #6e6e6e;
+}

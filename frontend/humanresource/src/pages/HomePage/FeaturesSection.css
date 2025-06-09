@@ -1,0 +1,64 @@
+/* FeaturesSection.css */
+
+.features-section {
+    background-color: #ffffff;    /* temiz beyaz arka plan */
+    padding: 4rem 1rem;
+    text-align: center;
+}
+
+.features-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0a1f44;               /* PeopleMesh koyu laciverti */
+    margin-bottom: 2.5rem;
+}
+
+.features-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (min-width: 600px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .features-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.feature-card {
+    background: #f8f7f4;           /* çok açık krem */
+    padding: 2rem 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+}
+
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0a1f44;
+    margin-bottom: 0.5rem;
+}
+
+.feature-desc {
+    font-size: 0.95rem;
+    color: #4a4a4a;
+    line-height: 1.4;
+}

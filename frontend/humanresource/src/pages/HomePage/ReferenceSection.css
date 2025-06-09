@@ -1,0 +1,78 @@
+:root {
+    --primary-dark: #0f1f3a; /* Navbar’dan biraz daha açık koyu mavi */
+    --primary-mid:  #162a4c; /* Bölümün arkaplanı */
+    --white:        #ffffff;
+}
+
+.refs-section {
+    background-color: #F3F0EB; /* Hafif krem-bej alt tonu, metinle kontrast iyi */
+
+    /* Mevcut padding + overflow */
+    padding: 4rem 2rem;
+    overflow: hidden;
+}
+
+/* Başlık rengini de biraz daha koyu laciverte kaydırıyoruz */
+.refs-title {
+    color: #0A1F44;  /* primaryDark ile uyumlu */
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+/* Marquee root */
+.refs-marquee {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Birden fazla logo setini yan yana tutan track */
+.refs-track {
+    display: flex;
+    /* 2 set × 6 logo × 120px her wrapper = 1440px genişlik */
+    width: calc(2 * 6 * 120px);
+    animation: scrollLogos 20s linear infinite;
+}
+
+/* Logo wrapper – kutuyu kaldırdık, sadece ortalama göre */
+.refs-logo-wrapper {
+    flex: 0 0 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Logo görseli */
+.refs-logo {
+    max-width: 100%;
+    max-height: 60px;
+    filter: brightness(1) drop-shadow(0 0 4px rgba(0,0,0,0.5));
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* Hover’da hafif büyüyüp belirginleşsin */
+.refs-logo-wrapper:hover .refs-logo {
+    transform: scale(1.1);
+    filter: brightness(1.2) drop-shadow(0 0 4px rgba(255,255,255,0.6));
+}
+
+/* Animasyon – tam yarıya kadar kaydır, sonra loop */
+@keyframes scrollLogos {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Responsive hız ve boyut ayarı */
+@media (max-width: 768px) {
+    .refs-track {
+        animation-duration: 25s;
+    }
+    .refs-logo-wrapper {
+        flex: 0 0 100px;
+    }
+    .refs-logo {
+        max-height: 50px;
+    }
+}

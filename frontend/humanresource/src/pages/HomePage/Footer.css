@@ -1,0 +1,123 @@
+/* Footer.css */
+
+.footer {
+    background-color: #091a3a;  /* biraz daha koyu lacivert */
+    color: #f3f0eb;             /* kirli beyaz */
+    padding-top: 3rem;
+    font-family: sans-serif;
+}
+
+.footer__inner {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+    /* 5 sütun: marka + 4 bölüm + sosyal */
+    .footer__inner {
+        grid-template-columns: 2fr repeat(3, 1fr) 1fr;
+    }
+}
+
+.footer__section {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer__brand {
+    align-items: flex-start;
+}
+
+.footer__logo {
+    width: 120px;
+    margin-bottom: 1rem;
+}
+
+.footer__tagline {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-width: 200px;
+}
+
+.footer__heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.footer__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer__links li {
+    margin-bottom: 0.5rem;
+}
+
+.footer__links a {
+    color: #f3f0eb;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.footer__links a:hover {
+    color: #f4b740;   /* sarı aksan */
+}
+
+.footer__contact,
+.footer__address {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    color: #dcd7ce;
+}
+
+.footer__address {
+    font-style: normal;
+    line-height: 1.4;
+}
+
+.footer__social {
+    align-items: flex-start;
+}
+
+.footer__social-icons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.footer__social-icons a {
+    font-size: 1.25rem;
+    color: #f3f0eb;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer__social-icons a:hover {
+    color: #f4b740;
+    transform: translateY(-2px);
+}
+
+.footer__bottom {
+    text-align: center;
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.875rem;
+}
+
+/* Mobilde ortala tüm bölümler */
+@media (max-width: 767px) {
+    .footer__inner {
+        text-align: center;
+    }
+    .footer__brand {
+        align-items: center;
+    }
+    .footer__social {
+        align-items: center;
+    }
+}
