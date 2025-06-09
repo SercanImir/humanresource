@@ -23,7 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
-            throws ServletException, IOException {
+                                throws ServletException, IOException {
         String authHeader=request.getHeader("Authorization");
         if(StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
             String token=authHeader.substring(7);
