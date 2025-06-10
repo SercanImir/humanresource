@@ -40,7 +40,9 @@ public enum ErrorType {
     FILE_SIZE_TOO_LARGE(4015, "File size exceeds maximum limit (5MB).", BAD_REQUEST),
     INVALID_FILE_TYPE(4016, "Invalid file type. Only JPG, JPEG, PNG, GIF are allowed.", BAD_REQUEST),
     INVALID_FILE_NAME(4017, "Invalid file name.", BAD_REQUEST),
-    INVALID_FILE_EXTENSION(4018, "Invalid file extension.", BAD_REQUEST);
+    INVALID_FILE_EXTENSION(4018, "Invalid file extension.", BAD_REQUEST),
+    ALREADY_VERIFIED(4010, "Already verified." , BAD_REQUEST ),
+    EMAIL_NOT_VERIFIED(4011,"Email not verified." , BAD_REQUEST ),;
 
 
     int code;

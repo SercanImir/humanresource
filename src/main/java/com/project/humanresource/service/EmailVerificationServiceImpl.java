@@ -7,6 +7,7 @@ import com.project.humanresource.exception.HumanResourceException;
 import com.project.humanresource.repostiory.EmailVerificationRepository;
 import com.project.humanresource.repostiory.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
@@ -51,13 +52,27 @@ public class EmailVerificationServiceImpl implements IEmailVerificationService {
     public void resendVerificationEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
-        if (Boolean.TRUE.equals(user.getEmailVerified())) {
+        if(Boolean.TRUE.equals(user.isEmailVerified())){
             throw new HumanResourceException(ErrorType.ALREADY_VERIFIED);
         }
+
         emailVerificationRepository.deleteByUserId(user.getId());
-        String newToken = UUID.randomUUID().toString();
-        EmailVerification ev = new EmailVerification(user.getId(), newToken, LocalDateTime.now().plusHours(24));
-        emailVerificationRepository.save(ev);
+
+        String newToken=UUID.randomUUID().toString();
+        EmailVerification emailVerification = EmailVerification.builder()
+                .userId(user.getId())
+                .token(newToken)
+                .expiryDate(LocalDateTime.now().plusHours(5))
+                .build();
+        emailVerificationRepository.save(emailVerification);
+
+        String link = "http://localhost:9090/api/email-verification/confirm?token=" + newToken;
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setTo(user.getEmail());
+        mail.setSubject("Please verify your email (resend)");
+        mail.setText("To verify your account, click here: " + link);
+        mailSender.send(mail);
+
 
     }
 }

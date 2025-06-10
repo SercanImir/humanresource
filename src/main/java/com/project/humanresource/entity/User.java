@@ -18,6 +18,14 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "users")
 public class User extends BaseEntity {
 
+
+    @NotBlank
+    String firstName;
+
+    @NotBlank
+    String lastName;
+
+
     @NotBlank
     @Column(unique = true)
     @Size(min = 6)

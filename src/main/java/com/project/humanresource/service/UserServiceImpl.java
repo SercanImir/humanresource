@@ -16,6 +16,19 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Optional<User> findByEmail(String email) {
+
         return userRepository.findByEmail(email);
     }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+
 }

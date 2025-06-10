@@ -16,7 +16,7 @@ public class EmailVerificationController {
     }
 
     @GetMapping("/confirm")
-    public ResponseEntity<BaseResponse<Boolean>> confirmToken(@RequestParam("token") String token){
+    public ResponseEntity<BaseResponse<Boolean>> confirmToken(@RequestParam String token){
         verifacationService.verifyEmail(token);
         return ResponseEntity.ok(BaseResponse.<Boolean>builder()
                         .code(200)

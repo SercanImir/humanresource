@@ -22,12 +22,6 @@ import java.time.LocalDate;
 public class Employee extends User {
 
 
-    @NotBlank
-    String firstName;
-
-    @NotBlank
-    String lastName;
-
     @Pattern(regexp = "^\\d{11}$")
     String phoneWork;
 
