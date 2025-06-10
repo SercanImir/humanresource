@@ -4,18 +4,21 @@ import com.project.humanresource.entity.EmailVerification;
 import com.project.humanresource.entity.User;
 import com.project.humanresource.exception.ErrorType;
 import com.project.humanresource.exception.HumanResourceException;
-import com.project.humanresource.repostiory.EmailVericifationRepository;
+import com.project.humanresource.repostiory.EmailVerificationRepository;
 import com.project.humanresource.repostiory.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
-public class EmailVerificationServiceImpl implements IEmailVerifacationService{
-    EmailVericifationRepository emailVerificationRepository;
-    UserRepository userRepository;
-    JavaMailSender mailSender;
+@RequiredArgsConstructor
+public class EmailVerificationServiceImpl implements IEmailVerificationService {
+    private final EmailVerificationRepository emailVerificationRepository;
+    private final UserRepository userRepository;
+    private final JavaMailSender mailSender;
 
     @Override
     public void verifyEmail(String token) {
@@ -25,7 +28,8 @@ public class EmailVerificationServiceImpl implements IEmailVerifacationService{
 
         //  2.  Süre kontrolü
         if (emailVerification.getExpiryDate().isBefore(LocalDateTime.now())){
-            emailVerificationRepository.delete(emailVerification);
+            emailVerificationRepository.deleteById(emailVerification.getId());
+            throw new HumanResourceException(ErrorType.EXPIRED_TOKEN);
         }
 
         //  3.  İlgili kullanıcıyı al
@@ -45,6 +49,15 @@ public class EmailVerificationServiceImpl implements IEmailVerifacationService{
 
     @Override
     public void resendVerificationEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
+        if (Boolean.TRUE.equals(user.getEmailVerified())) {
+            throw new HumanResourceException(ErrorType.ALREADY_VERIFIED);
+        }
+        emailVerificationRepository.deleteByUserId(user.getId());
+        String newToken = UUID.randomUUID().toString();
+        EmailVerification ev = new EmailVerification(user.getId(), newToken, LocalDateTime.now().plusHours(24));
+        emailVerificationRepository.save(ev);
 
     }
 }

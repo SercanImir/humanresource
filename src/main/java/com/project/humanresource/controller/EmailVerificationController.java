@@ -1,17 +1,17 @@
 package com.project.humanresource.controller;
 
 import com.project.humanresource.dto.response.BaseResponse;
-import com.project.humanresource.service.IEmailVerifacationService;
+import com.project.humanresource.service.IEmailVerificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/email-verification")
-public class EmailVerifactionController {
+public class EmailVerificationController {
 
-    private final IEmailVerifacationService verifacationService;
+    private final IEmailVerificationService verifacationService;
 
-    public EmailVerifactionController(IEmailVerifacationService verifacationService) {
+    public EmailVerificationController(IEmailVerificationService verifacationService) {
         this.verifacationService = verifacationService;
     }
 
