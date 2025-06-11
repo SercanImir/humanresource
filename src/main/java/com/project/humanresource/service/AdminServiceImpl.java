@@ -24,31 +24,40 @@ public class AdminServiceImpl implements IAdminService {
     private final IUserRoleService userRoleService;
 
 
+    /**
+     * Admin onayıyla:
+     * - Kullanıcı e-posta doğrulaması kontrolü,
+     * - Çalışanın şirketini bulma,
+     * - Aboneliği şimdi başlatıp enum’dan getMonths() ile hesaplama,
+     * - Kullanıcıyı aktif etme ve Manager rolü atama.
+     */
     @Override
     public void approveUser(Long userId) {
+        // 1) Kullanıcıyı al
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
 
-        //  1   Kullanıcı
-        Optional<User> user=userService.findById(userId);
-
-        if(!user.get().isEmailVerified()){
+        // 2) E-posta doğrulanmış mı?
+        if (!user.isEmailVerified()) {
             throw new HumanResourceException(ErrorType.EMAIL_NOT_VERIFIED);
         }
-        Employee employee=employeeService.findByUserId(userId);
-        Company company=companyRepository.findById(employee.getCompanyId())
+
+        // 3) Employee’dan companyId al, Company’yi getir
+        Employee emp = employeeService.findByUserId(userId);
+        Company company = companyRepository.findById(emp.getCompanyId())
                 .orElseThrow(() -> new HumanResourceException(ErrorType.COMPANY_NOT_FOUND));
 
-
-        // 3) Abonelik tarihleri (enum veya parse)
+        // 4) Aboneliği başlatma: enum’dan ay sayısını al
         LocalDateTime now = LocalDateTime.now();
-        int months = SubscriptionType.valueOf(company.getSubscriptionType().toUpperCase()).getMonths();
         company.setSubscriptionStart(now);
-        company.setSubscriptionEnd(now.plusMonths(months));
+        SubscriptionType subType = company.getSubscriptionType();  // enum kullanıyoruz
+        company.setSubscriptionEnd(now.plusMonths(subType.getMonths()));
         company.setVerified(true);
         companyRepository.save(company);
 
-        // 4) Kullanıcı onayı ve rol ata
-        user.get().setEnabled(true);
-        userService.save(user.get());
+        // 5) Kullanıcıyı aktif et ve Manager rolünü ata
+        user.setEnabled(true);
+        userService.save(user);
         userRoleService.assignRole(userId, UserStatus.MANAGER);
     }
 }
