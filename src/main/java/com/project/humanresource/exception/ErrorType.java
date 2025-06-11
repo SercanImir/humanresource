@@ -42,7 +42,9 @@ public enum ErrorType {
     INVALID_FILE_NAME(4017, "Invalid file name.", BAD_REQUEST),
     INVALID_FILE_EXTENSION(4018, "Invalid file extension.", BAD_REQUEST),
     ALREADY_VERIFIED(4010, "Already verified." , BAD_REQUEST ),
-    EMAIL_NOT_VERIFIED(4011,"Email not verified." , BAD_REQUEST ),;
+    EMAIL_NOT_VERIFIED(4011,"Email not verified." , BAD_REQUEST ),
+    INVALID_CREDENTIALS(4008, "Invalid username or password." , FORBIDDEN ),
+    USER_NOT_ENABLED(4020,"Your account is not active, please wait for admin approval." , BAD_REQUEST ),;
 
 
     int code;

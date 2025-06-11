@@ -2,6 +2,7 @@ package com.project.humanresource.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -15,15 +16,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "users")
+@Table(name = "tbl_users")
 public class User extends BaseEntity {
 
 
-    @NotBlank
-    String firstName;
 
-    @NotBlank
-    String lastName;
 
 
     @NotBlank

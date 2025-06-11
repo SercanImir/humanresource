@@ -19,11 +19,14 @@ import java.time.LocalDate;
 @SuperBuilder
 @Table(name = "tbl_employee")
 
-public class Employee extends User {
+public class Employee extends BaseEntity {
 
+    @NotBlank
+    String firstName;
 
-    @Pattern(regexp = "^\\d{11}$")
-    String phoneWork;
+    @NotBlank
+    String lastName;
+
 
     LocalDate hireDate;
 
@@ -32,6 +35,11 @@ public class Employee extends User {
 
     @NotNull
     Long titleId;
+
+    Long branchId;
+    Long departmentId;
+    Long userId;
+
 
 
 
