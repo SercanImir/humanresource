@@ -1,0 +1,31 @@
+/* Arka plan */
+.content-bg {
+    background-color: #F8F4E8;
+}
+
+/* Zebra ve hover efektleri */
+.company-table tbody tr:nth-of-type(odd) {
+    background-color: #FFFFFF;
+}
+.company-table tbody tr:nth-of-type(even) {
+    background-color: #FEFCF5;
+}
+.company-table tbody tr:hover {
+    background-color: rgba(255,193,7,0.1);
+}
+
+/* Yeni ikon stili */
+.action-icon {
+    font-size: 1.2rem;
+    margin: 0 0.5rem;
+    color: #0A1F44; /* koyu lacivert, vurguyu renkli ikonla değil buton arkasında bırak */
+    cursor: pointer;
+    transition: color 0.2s, transform 0.1s;
+}
+.action-icon:hover {
+    color: #FFC107;      /* hover’da proje sarısıyla vurgula */
+    transform: scale(1.1);
+}
+.action-icon.text-danger {
+    color: #DC3545;
+}

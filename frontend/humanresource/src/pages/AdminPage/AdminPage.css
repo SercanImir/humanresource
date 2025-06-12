@@ -1,0 +1,74 @@
+/* Tam ekran, yatay esnek düzen */
+.admin-dashboard {
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #0A1F44 0%, #13305F 100%);
+}
+.sidebar .logo {
+    width: 200px;    /* İstediğiniz genişlik */
+    height: 200px;   /* İstediğiniz yükseklik */
+    object-fit: contain;  /* Orantıyı korur */
+    margin-bottom: 1rem;   /* İsterseniz boşluğu ayarlayın */
+}
+.sidebar .nav-link {
+    color: #CED4DA;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover {
+    background-color: #FFC107;
+    color: #0A1F44;
+}
+
+/* Ana içerik bölgesi */
+.content-bg {
+    background-color: #F8F4E8;
+    overflow-y: auto;
+}
+
+/* Stat Kartları */
+.stat-card {
+    border: none;
+    border-radius: 0.75rem;
+    background-color: #FFFFFF;
+}
+.stat-icon {
+    font-size: 2.5rem;
+    color: #FFC107;
+}
+.stat-title {
+    margin: 0.5rem 0;
+    font-weight: 500;
+    color: #0A1F44;
+}
+.stat-number {
+    font-size: 2rem;
+    color: #0A1F44;
+    margin: 0;
+}
+
+/* Table satır hover */
+.table-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.table-row:hover {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+/* Holiday list */
+.holiday-item {
+    display: flex;
+    align-items: center;
+    border: none;
+    padding: 0.75rem 1rem;
+}
+.holiday-item .bi-calendar-date-fill {
+    color: #FFC107;
+}

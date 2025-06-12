@@ -19,7 +19,7 @@ public class UserRole   {
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // <<< burayı ekleyin
     private Long id;
     @Enumerated(EnumType.STRING)
-    @Column(unique = true, nullable = false)
+    @Column( nullable = false)
     UserStatus userStatus;
     Long userId;
 
