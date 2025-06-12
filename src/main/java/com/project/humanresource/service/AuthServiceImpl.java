@@ -49,10 +49,11 @@ public class AuthServiceImpl implements IAuthService {
             throw new HumanResourceException(ErrorType.EMAIL_ALREADY_EXISTS);
         }
         // 2) Company getir veya oluştur
-        Company company=companyRepository.findByName(dto.companyName())
+        Company company=companyRepository.findByCompanyName(dto.companyName())
                 .orElseGet(()->Company.builder()
                         .companyName(dto.companyName())
                         .companyPhoneNumber(dto.phoneNumber())
+                        .companyEmail(dto.email())
                         .subscriptionType(dto.subscriptionType())
                         .subscriptionStart(LocalDateTime.now())
                         .isVerified(false)

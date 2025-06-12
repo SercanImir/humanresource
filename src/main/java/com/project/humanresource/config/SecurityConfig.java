@@ -77,7 +77,8 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/email-verification/**",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/api/invitations/**"
                         ).permitAll()
                         // Admin işlemleri
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")

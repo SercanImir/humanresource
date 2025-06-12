@@ -31,7 +31,6 @@ public class Company extends BaseEntity {
     @Pattern(regexp = "^\\d{11}$")
     String companyPhoneNumber;
     @Email
-    @NotBlank
     @Column(unique = true)
     String companyEmail;
 

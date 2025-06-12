@@ -4,7 +4,7 @@ import java.util.List;
 
 public record JwtResponseDto(
         String token,
-        String tokentype,
+        String type,
         String email,
         List<String> role
 ) {

@@ -20,7 +20,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create   # veya update
+      ddl-auto: update   # veya update
     show-sql: true
     properties:
       hibernate:

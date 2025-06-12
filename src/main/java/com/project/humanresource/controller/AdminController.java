@@ -34,4 +34,5 @@ public class AdminController {
                        .data(true)
                .build());
     }
+
 }

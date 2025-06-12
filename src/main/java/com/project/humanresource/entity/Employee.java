@@ -33,7 +33,7 @@ public class Employee extends BaseEntity {
     @NotNull
     Long companyId;
 
-    @NotNull
+
     Long titleId;
 
     Long branchId;
