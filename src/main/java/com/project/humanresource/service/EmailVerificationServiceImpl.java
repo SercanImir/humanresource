@@ -21,58 +21,68 @@ public class EmailVerificationServiceImpl implements IEmailVerificationService {
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
 
+
+
     @Override
     public void verifyEmail(String token) {
-        //  1. Tokenı bul
-        EmailVerification emailVerification = emailVerificationRepository.findByToken(token)
-                .orElseThrow(()-> new HumanResourceException(ErrorType.INVALID_TOKEN));
+        // 1) Token’ı al
+        EmailVerification ev = emailVerificationRepository.findByToken(token)
+                .orElseThrow(() -> new HumanResourceException(ErrorType.INVALID_TOKEN));
 
-        //  2.  Süre kontrolü
-        if (emailVerification.getExpiryDate().isBefore(LocalDateTime.now())){
-            emailVerificationRepository.deleteById(emailVerification.getId());
+        // 2) Süre dolmuş mu?
+        if (ev.getExpiryDate().isBefore(LocalDateTime.now())) {
+            emailVerificationRepository.deleteByToken(token);
             throw new HumanResourceException(ErrorType.EXPIRED_TOKEN);
         }
 
-        //  3.  İlgili kullanıcıyı al
-        User user=userRepository.findById(emailVerification.getUserId())
-                .orElseThrow(()-> new HumanResourceException(ErrorType.USER_NOT_FOUND));
+        // 3) User’ı al
+        User user = userRepository.findById(ev.getUserId())
+                .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
 
+        // 4) EmailVerified flag’ini set et
+        //    Burada dikkat et: User entity’sinde Boolean mı yoksa primitive boolean mı?
+        //    Eğer primitive boolean ise Lombok getter’ı isEmailVerified() olur.
+        //    Eğer Boolean obje ise getter getEmailVerified() olur.
+        if (!user.isEmailVerified()) {
+            user.setEmailVerified(true);
+            userRepository.save(user);
+        }
 
-        // 4. E-posta doğrulamasını işaretle
-        user.setEmailVerified(true);
-        userRepository.save(user);
-
-        // 5. Token kaydını temizle
-        emailVerificationRepository.delete(emailVerification);
-
-
+        // 5) Token’ı sil
+        emailVerificationRepository.deleteByToken(token);
     }
 
     @Override
     public void resendVerificationEmail(String email) {
+        // 1) User’ı al
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
-        if(Boolean.TRUE.equals(user.isEmailVerified())){
+
+        // 2) Zaten doğrulandı mı?
+        if (Boolean.TRUE.equals(user.isEmailVerified())) {
             throw new HumanResourceException(ErrorType.ALREADY_VERIFIED);
         }
 
+        // 3) Eski token’ları sil
         emailVerificationRepository.deleteByUserId(user.getId());
 
-        String newToken=UUID.randomUUID().toString();
-        EmailVerification emailVerification = EmailVerification.builder()
-                .userId(user.getId())
+        // 4) Yeni token üret ve kaydet
+        String newToken = UUID.randomUUID().toString();
+        EmailVerification ev = EmailVerification.builder()
                 .token(newToken)
                 .expiryDate(LocalDateTime.now().plusHours(5))
+                .userId(user.getId())
+                .isUsed(false)
                 .build();
-        emailVerificationRepository.save(emailVerification);
+        emailVerificationRepository.save(ev);
 
+        // 5) Mail gönderimi
         String link = "http://localhost:9090/api/email-verification/confirm?token=" + newToken;
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setTo(user.getEmail());
-        mail.setSubject("Please verify your email (resend)");
-        mail.setText("To verify your account, click here: " + link);
+        mail.setSubject("Please verify your email");
+        mail.setText("Click to verify: " + link);
         mailSender.send(mail);
-
-
     }
+
 }

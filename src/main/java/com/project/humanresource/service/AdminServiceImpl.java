@@ -1,18 +1,24 @@
 package com.project.humanresource.service;
 
+import com.project.humanresource.dto.request.PendingCompanyResponseDto;
+import com.project.humanresource.dto.response.CompanyResponseDto;
 import com.project.humanresource.entity.Company;
 import com.project.humanresource.entity.Employee;
 import com.project.humanresource.entity.User;
 import com.project.humanresource.exception.ErrorType;
 import com.project.humanresource.exception.HumanResourceException;
 import com.project.humanresource.repostiory.CompanyRepository;
+import com.project.humanresource.repostiory.EmployeeRepository;
+import com.project.humanresource.repostiory.UserRepository;
 import com.project.humanresource.utility.SubscriptionType;
 import com.project.humanresource.utility.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +28,8 @@ public class AdminServiceImpl implements IAdminService {
     private final IEmployeeService employeeService;
     private final CompanyRepository companyRepository;
     private final IUserRoleService userRoleService;
+    private final UserRepository userRepository;
+    private final EmployeeRepository employeeRepository;
 
 
     /**
@@ -60,4 +68,53 @@ public class AdminServiceImpl implements IAdminService {
         userService.save(user);
         userRoleService.assignRole(userId, UserStatus.MANAGER);
     }
+
+    @Override
+    public List<PendingCompanyResponseDto> getPendingCompanies() {
+        return companyRepository.findAllByIsVerifiedFalse()
+                .stream()
+                .map(this::toPendingDto)
+                .collect(Collectors.toList());
+    }
+
+    private PendingCompanyResponseDto toPendingDto(Company company) {
+        // ① Bu şirketin “başvurusunu yapan” ilk employee’yi bul
+        Employee employee = employeeRepository
+                .findFirstByCompanyId(company.getId())
+                .orElseThrow(() ->
+                        new HumanResourceException(ErrorType.USER_NOT_FOUND));
+
+        // ② O employee’nin User kaydını al
+        User user = userRepository
+                .findById(employee.getUserId())
+                .orElseThrow(() ->
+                        new HumanResourceException(ErrorType.USER_NOT_FOUND));
+
+        return new PendingCompanyResponseDto(
+                company.getId(),
+                company.getCompanyName(),
+                employee.getFirstName(),
+                employee.getLastName(),
+                user.getEmail(),
+                company.getSubscriptionType(),
+                company.getCreatedAt()
+
+        );
+
+    }
+
+    @Override
+    public void approveCompany(Long companyId) {
+        Company company=companyRepository.findById(companyId)
+                .orElseThrow(() -> new HumanResourceException(ErrorType.COMPANY_NOT_FOUND));
+
+        // abonelik tarihini başlat ve bitir
+        LocalDateTime now = LocalDateTime.now();
+        company.setSubscriptionStart(now);
+        company.setSubscriptionEnd(now.plusMonths(company.getSubscriptionType().getMonths()));
+
+        company.setVerified(true);
+        companyRepository.save(company);
+    }
+
 }

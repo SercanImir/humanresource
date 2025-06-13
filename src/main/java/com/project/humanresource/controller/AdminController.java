@@ -1,5 +1,6 @@
 package com.project.humanresource.controller;
 
+import com.project.humanresource.dto.request.PendingCompanyResponseDto;
 import com.project.humanresource.dto.response.BaseResponse;
 import com.project.humanresource.entity.Company;
 import com.project.humanresource.entity.User;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -35,4 +37,28 @@ public class AdminController {
                .build());
     }
 
+    @GetMapping("/pending")
+    public ResponseEntity<BaseResponse<List<PendingCompanyResponseDto>>> listPending() {
+        List<PendingCompanyResponseDto> list = adminService.getPendingCompanies();
+        return ResponseEntity.ok(
+                BaseResponse.<List<PendingCompanyResponseDto>>builder()
+                        .code(200)
+                        .message("Pending applications retrieved.")
+                        .data(list)
+                        .build()
+        );
+    }
+
+
+    @PostMapping("/approve/{id}")
+    public ResponseEntity<BaseResponse<Boolean>> approveCompany(@PathVariable Long id) {
+        adminService.approveCompany(id);
+        return ResponseEntity.ok(
+                BaseResponse.<Boolean>builder()
+                        .code(200)
+                        .message("Company approved successfully.")
+                        .data(true)
+                        .build()
+        );
+    }
 }
