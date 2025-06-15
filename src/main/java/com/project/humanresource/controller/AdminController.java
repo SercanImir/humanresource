@@ -37,7 +37,7 @@ public class AdminController {
                .build());
     }
 
-    @GetMapping("/pending")
+    @GetMapping("/companies/pending")
     public ResponseEntity<BaseResponse<List<PendingCompanyResponseDto>>> listPending() {
         List<PendingCompanyResponseDto> list = adminService.getPendingCompanies();
         return ResponseEntity.ok(

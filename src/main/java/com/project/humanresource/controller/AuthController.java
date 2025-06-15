@@ -36,15 +36,7 @@ public class AuthController {
 
     }
 
-    @GetMapping("/verify")
-    public ResponseEntity<BaseResponse<Boolean>> verifyEmail (@RequestParam("token") String token){
-        iAuthService.verifyEmail(token);
-        return ResponseEntity.ok(BaseResponse.<Boolean>builder()
-                        .code(200)
-                        .message("Email verified; waiting for admin approval.")
-                        .data(true)
-                .build());
-    }
+
 
 
     @PostMapping("/login")

@@ -4,9 +4,13 @@ package com.project.humanresource.config;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 
 import java.util.List;
@@ -18,6 +22,21 @@ public class JwtManager {
 
     private String issuer = "Sercan IMIR";
     private Long expirationDate = 1000L * 60 * 60 * 5;
+    private String base64Secret;
+
+    private Key hmacKey;
+
+    @PostConstruct
+    public void init() {
+        if (base64Secret == null || base64Secret.isBlank()) {
+            throw new IllegalStateException("JWT_SECRET environment variable is not set!");
+        }
+
+        byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
+        this.hmacKey = Keys.hmacShaKeyFor(keyBytes);
+    }
+
+
 
     public String generateToken(Long userId, String email, List<String> roles){
 

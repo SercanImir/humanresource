@@ -12,11 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "tblemailverification")
-public class EmailVerification {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")       // eğer farklı bir isim kullanıldıysa (örneğin email_verification_id) orayı yazın
-    private Long id;
+public class EmailVerification extends BaseEntity {
+
 
     @Column(nullable = false, unique = true)
     private String token;

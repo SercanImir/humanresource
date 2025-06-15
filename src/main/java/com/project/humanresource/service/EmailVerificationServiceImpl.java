@@ -6,6 +6,7 @@ import com.project.humanresource.exception.ErrorType;
 import com.project.humanresource.exception.HumanResourceException;
 import com.project.humanresource.repostiory.EmailVerificationRepository;
 import com.project.humanresource.repostiory.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,25 +19,26 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmailVerificationServiceImpl implements IEmailVerificationService {
     private final EmailVerificationRepository emailVerificationRepository;
-    private final UserRepository userRepository;
+    private final IUserService userService;
     private final JavaMailSender mailSender;
 
 
 
     @Override
+    @Transactional
     public void verifyEmail(String token) {
         // 1) Token’ı al
-        EmailVerification ev = emailVerificationRepository.findByToken(token)
+        EmailVerification emailVerification = emailVerificationRepository.findByToken(token)
                 .orElseThrow(() -> new HumanResourceException(ErrorType.INVALID_TOKEN));
 
         // 2) Süre dolmuş mu?
-        if (ev.getExpiryDate().isBefore(LocalDateTime.now())) {
+        if (emailVerification.getExpiryDate().isBefore(LocalDateTime.now())) {
             emailVerificationRepository.deleteByToken(token);
             throw new HumanResourceException(ErrorType.EXPIRED_TOKEN);
         }
 
         // 3) User’ı al
-        User user = userRepository.findById(ev.getUserId())
+        User user = userService.findById(emailVerification.getUserId())
                 .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
 
         // 4) EmailVerified flag’ini set et
@@ -45,7 +47,7 @@ public class EmailVerificationServiceImpl implements IEmailVerificationService {
         //    Eğer Boolean obje ise getter getEmailVerified() olur.
         if (!user.isEmailVerified()) {
             user.setEmailVerified(true);
-            userRepository.save(user);
+            userService.save(user);
         }
 
         // 5) Token’ı sil
@@ -53,9 +55,10 @@ public class EmailVerificationServiceImpl implements IEmailVerificationService {
     }
 
     @Override
+    @Transactional
     public void resendVerificationEmail(String email) {
         // 1) User’ı al
-        User user = userRepository.findByEmail(email)
+        User user = userService.findByEmail(email)
                 .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
 
         // 2) Zaten doğrulandı mı?

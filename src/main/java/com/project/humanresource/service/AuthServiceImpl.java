@@ -81,13 +81,13 @@ public class AuthServiceImpl implements IAuthService {
 
         // 6) Email doğrulama token’ı üret & kaydet
         String token = UUID.randomUUID().toString();
-        EmailVerification ev = EmailVerification.builder()
+        EmailVerification emailVerification = EmailVerification.builder()
                 .token(token)
                 .expiryDate(LocalDateTime.now().plusHours(5))
                 .userId(user.getId())
                 .isUsed(false)
                 .build();
-        emailVerificationRepository.save(ev);
+        emailVerificationRepository.save(emailVerification);
 
         // 7) Doğrulama maili gönder
         String link = "http://localhost:9090/api/email-verification/confirm?token=" + token;
@@ -98,33 +98,7 @@ public class AuthServiceImpl implements IAuthService {
         mailSender.send(mail);
     }
 
-    @Override
-    public void verifyEmail(String token) {
-        // 1) Token’ı al
-        EmailVerification ev = emailVerificationRepository
-                .findByToken(token)
-                .orElseThrow(() -> new HumanResourceException(ErrorType.INVALID_TOKEN));
 
-        // 2) Süre kontrolü
-        if (ev.getExpiryDate().isBefore(LocalDateTime.now())) {
-            // süresi doldu, sil ve hata fırlat
-            emailVerificationRepository.deleteByToken(token);
-            throw new HumanResourceException(ErrorType.EXPIRED_TOKEN);
-        }
-
-        // 3) Kullanıcıyı al
-        User user = userService.findById(ev.getUserId())
-                .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
-
-        // 4) E-posta işaretle
-        if (!user.isEmailVerified()) {
-            user.setEmailVerified(true);
-            userService.save(user);
-        }
-
-        // 5) Token’ı temizle
-        emailVerificationRepository.deleteByToken(token);
-    }
 
     @Override
     public JwtResponseDto login(LoginRequestDto dto) {
