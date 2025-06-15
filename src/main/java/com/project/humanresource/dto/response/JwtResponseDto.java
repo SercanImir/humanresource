@@ -1,11 +1,12 @@
 package com.project.humanresource.dto.response;
 
+import com.project.humanresource.utility.UserStatus;
+
 import java.util.List;
 
 public record JwtResponseDto(
         String token,
-        String type,
         String email,
-        List<String> role
+        List<UserStatus> roles
 ) {
 }

@@ -35,10 +35,9 @@ public class JwtUserDetails implements UserDetailsService {
                 .orElseThrow(()->new HumanResourceException(ErrorType.USER_NOT_FOUND));
 
         // 2) Rollerini DB’den çek
-        List<GrantedAuthority> authorities=userRoleService.findAllRole(user.getId())
+        List<GrantedAuthority> authorities=userRoleService.findAllRoleStatuses(user.getId())
                 .stream()
-                .map(UserRole::getUserStatus)
-                .map(Enum::name)
+                .map(UserStatus::name)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 

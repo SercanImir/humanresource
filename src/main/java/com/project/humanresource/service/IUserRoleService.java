@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface IUserRoleService {
 
-    List<UserRole> findAllRole(Long userId);
+    List<UserStatus> findAllRoleStatuses(Long userId);
 
     void assignRole(Long id, UserStatus userStatus);
+
+    void removeRole(Long id, UserStatus userStatus);
 }

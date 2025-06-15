@@ -53,6 +53,7 @@ public class AuthServiceImpl implements IAuthService {
                         .companyPhoneNumber(dto.phoneNumber())
                         .companyEmail(dto.email())         // eğer entity’de companyEmail zorunluysa
                         .subscriptionType(dto.subscriptionType())
+                        .createdAt(LocalDateTime.now())
                         .isVerified(false)
                         .build()
                 );
@@ -64,6 +65,7 @@ public class AuthServiceImpl implements IAuthService {
                 .password(dto.password())
                 .emailVerified(false)
                 .enabled(false)
+                .createdAt(LocalDateTime.now())
                 .build();
         user = userService.save(user);            // <-- mutlaka kaydetmeli
 
@@ -73,6 +75,7 @@ public class AuthServiceImpl implements IAuthService {
                 .companyId(company.getId())
                 .firstName(dto.firstName())
                 .lastName(dto.lastName())
+                .createdAt(LocalDateTime.now())
                 .build();
         employeeRepository.save(employee);
 
@@ -118,14 +121,16 @@ public class AuthServiceImpl implements IAuthService {
         if (!user.isEnabled())       throw new HumanResourceException(ErrorType.USER_NOT_ENABLED);
 
         // 3) Roller
-        List<String> roles = userRoleService.findAllRole(user.getId()).stream()
-                .map(UserRole::getUserStatus)
+        List<UserStatus> roleEnums = userRoleService
+                .findAllRoleStatuses(user.getId());
+
+        List<String> roles = roleEnums.stream()
                 .map(Enum::name)
-                .collect(Collectors.toList());
+                .toList();
 
         // 4) JWT üretimi
         String token = jwtManager.generateToken(user.getId(), user.getEmail(), roles);
 
-        return new JwtResponseDto(token, "Bearer", user.getEmail(), roles);
+        return new JwtResponseDto(token,  user.getEmail(), roleEnums);
     }
 }

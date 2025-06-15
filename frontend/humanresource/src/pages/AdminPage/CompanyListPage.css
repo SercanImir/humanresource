@@ -1,31 +1,23 @@
-/* Arka plan */
-.content-bg {
-    background-color: #F8F4E8;
+/* SweetAlert içindeki tablo için */
+.swal2-company-details .swal2-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.swal2-company-details .swal2-table th {
+    padding: 4px 8px;
+    font-weight: 600;
+    width: 35%;
+}
+.swal2-company-details .swal2-table td {
+    padding: 4px 8px;
 }
 
-/* Zebra ve hover efektleri */
-.company-table tbody tr:nth-of-type(odd) {
-    background-color: #FFFFFF;
+/* Tablo ikon hover efekti */
+.company-table td svg {
+    transition: transform .2s, color .2s;
 }
-.company-table tbody tr:nth-of-type(even) {
-    background-color: #FEFCF5;
-}
-.company-table tbody tr:hover {
-    background-color: rgba(255,193,7,0.1);
-}
-
-/* Yeni ikon stili */
-.action-icon {
-    font-size: 1.2rem;
-    margin: 0 0.5rem;
-    color: #0A1F44; /* koyu lacivert, vurguyu renkli ikonla değil buton arkasında bırak */
-    cursor: pointer;
-    transition: color 0.2s, transform 0.1s;
-}
-.action-icon:hover {
-    color: #FFC107;      /* hover’da proje sarısıyla vurgula */
-    transform: scale(1.1);
-}
-.action-icon.text-danger {
-    color: #DC3545;
+.company-table td svg:hover {
+    transform: scale(1.2);
+    color: #0d6efd;
 }

@@ -88,4 +88,45 @@ public class EmailVerificationServiceImpl implements IEmailVerificationService {
         mailSender.send(mail);
     }
 
+    /**
+     * Kullanıcıya onay/red kararını bildiren e-posta yollar.
+     *
+     * @param to           Alıcının e-posta adresi
+     * @param companyName  Başvurulan şirketin adı
+     * @param approved     True ise onaylandı, false ise reddedildi
+     */
+    public void sendDecisionEmail(String to, String companyName, boolean approved) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("Your Company Application " + (approved ? "Approved" : "Rejected"));
+        msg.setText(buildBody(companyName, approved));
+        mailSender.send(msg);
+    }
+
+    private String buildBody(String companyName, boolean approved) {
+        if (approved) {
+            return String.join(
+                    "\n",
+                    "Hello,",
+                    "",
+                    "Congratulations! Your application for \"" + companyName + "\" has been approved by our admin.",
+                    "You can now log in and start using your account.",
+                    "",
+                    "Best regards,",
+                    "PeopleMesh Team"
+            );
+        } else {
+            return String.join(
+                    "\n",
+                    "Hello,",
+                    "",
+                    "We regret to inform you that your application for \"" + companyName + "\" has been rejected.",
+                    "For more information, please contact our support team.",
+                    "",
+                    "Best regards,",
+                    "PeopleMesh Team"
+            );
+        }
+    }
+
 }

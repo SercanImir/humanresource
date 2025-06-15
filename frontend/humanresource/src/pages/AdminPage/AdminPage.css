@@ -10,8 +10,8 @@
     background: linear-gradient(180deg, #0A1F44 0%, #13305F 100%);
 }
 .sidebar .logo {
-    width: 200px;    /* İstediğiniz genişlik */
-    height: 200px;   /* İstediğiniz yükseklik */
+    width: 250px;    /* İstediğiniz genişlik */
+    height: 250px;   /* İstediğiniz yükseklik */
     object-fit: contain;  /* Orantıyı korur */
     margin-bottom: 1rem;   /* İsterseniz boşluğu ayarlayın */
 }

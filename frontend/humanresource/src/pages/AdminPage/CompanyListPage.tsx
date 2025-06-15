@@ -1,108 +1,180 @@
-import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
-import './CompanyListPage.css';
-import logo10 from '../../assets/images/logo10.png';
+import React, { useEffect, useState } from 'react'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import './CompanyListPage.css'
 
-// Feather icons
-import { FiEdit2, FiArrowUpCircle, FiTrash2 } from 'react-icons/fi';
+import { AiOutlineEye } from 'react-icons/ai'
+import { BiPowerOff }  from 'react-icons/bi'
+
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 interface Company {
-    id: string;
-    name: string;
-    startDate: string;
-    endDate: string;
-    plan: 'Monthly' | 'Yearly';
+    id: number
+    companyName: string
+    companyPhoneNumber: string
+    companyAddress: string
+    applicantFirstName: string
+    applicantLastName: string
+    applicantEmail: string
+    registrationDate: string
+    subscriptionType: string
+    subscriptionStart: string
+    subscriptionEnd: string
+    active: boolean
 }
 
-const companies: Company[] = [
-    { id: '1', name: 'Acme Inc.',     startDate: '2024-01-01', endDate: '2025-01-01', plan: 'Monthly' },
-    { id: '2', name: 'Beta Corp',     startDate: '2024-02-10', endDate: '2025-02-10', plan: 'Yearly' },
-    { id: '3', name: 'Gamma LLC',     startDate: '2024-03-05', endDate: '2025-03-05', plan: 'Monthly' },
-    { id: '4', name: 'Delta Ltd',     startDate: '2024-04-20', endDate: '2025-04-20', plan: 'Yearly' },
-    { id: '5', name: 'Epsilon PLC',   startDate: '2024-05-15', endDate: '2025-05-15', plan: 'Monthly' },
-    { id: '6', name: 'Zeta Systems',  startDate: '2024-06-01', endDate: '2025-06-01', plan: 'Yearly' },
-];
-
 export const CompanyListPage: React.FC = () => {
-    const [search, setSearch] = useState('');
+    const [list, setList] = useState<Company[]>([])
+    const [search, setSearch] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const pageSize = 15
 
-    const filtered = companies.filter(c =>
-        c.name.toLowerCase().includes(search.toLowerCase())
-    );
+    // → 1) Veri çekme
+    useEffect(() => {
+        (async () => {
+            const auth = localStorage.getItem('authToken') || ''
+            const resp = await fetch('http://localhost:9090/api/admin/companies', {
+                headers: { Authorization: auth }
+            })
+            const body = await resp.json()
+            setList(body.data as Company[])
+        })()
+    }, [])
+
+    // → 2) Tarih formatlayıcı
+    const formatDate = (iso: string) =>
+        isNaN(Date.parse(iso)) ? '—' : new Date(iso).toLocaleDateString()
+
+    // → 3) Pasif/Aktif toggle sweetalert ile
+    const toggleActive = async (c: Company) => {
+        const { isConfirmed } = await MySwal.fire({
+            title: c.active ? 'Pasifleştirmek istediğine emin misin?' : 'Aktifleştirmek istediğine emin misin?',
+            icon:  c.active ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Evet',
+            cancelButtonText: 'Hayır',
+            reverseButtons: true,
+        })
+
+        if (!isConfirmed) return
+
+        try {
+            const auth = localStorage.getItem('authToken') || ''
+            const resp = await fetch(
+                `http://localhost:9090/api/admin/companies/${c.id}/toggle`,
+                { method: 'POST', headers: { Authorization: auth } }
+            )
+            const body = await resp.json()
+            if (!resp.ok) throw new Error(body.message || resp.statusText)
+
+            setList(lst =>
+                lst.map(x => x.id === c.id ? { ...x, active: !x.active } : x)
+            )
+            await MySwal.fire(
+                c.active ? 'Şirket pasif edildi' : 'Şirket aktif edildi',
+                '',
+                c.active ? 'info' : 'success'
+            )
+        } catch (err: any) {
+            MySwal.fire('Hata', err.message, 'error')
+        }
+    }
+
+    // → 4) Detayları SweetAlert modal ile göster
+    const showDetails = (c: Company) => {
+        MySwal.fire({
+            title: `${c.companyName} Detayları`,
+            html: `
+        <table class="swal2-table">
+          <tr><th>Başvuran</th><td>${c.applicantFirstName} ${c.applicantLastName}</td></tr>
+          <tr><th>Email</th><td>${c.applicantEmail}</td></tr>
+          <tr><th>Telefon</th><td>${c.companyPhoneNumber}</td></tr>
+          <tr><th>Adres</th><td>${c.companyAddress}</td></tr>
+          <tr><th>Başvuru Tarihi</th><td>${formatDate(c.registrationDate)}</td></tr>
+          <tr><th>Plan</th><td>${c.subscriptionType}</td></tr>
+          <tr><th>Başlangıç</th><td>${formatDate(c.subscriptionStart)}</td></tr>
+          <tr><th>Bitiş</th><td>${formatDate(c.subscriptionEnd)}</td></tr>
+          <tr><th>Aktif</th><td>${c.active ? 'Evet' : 'Hayır'}</td></tr>
+        </table>
+      `,
+            width: 600,
+            confirmButtonText: 'Kapat',
+            customClass: {
+                popup: 'swal2-company-details'
+            }
+        })
+    }
+
+    // → 5) Filtre ve Sayfalama
+    const filtered = list.filter(c =>
+        c.companyName.toLowerCase().includes(search.toLowerCase())
+    )
+    const totalPages = Math.ceil(filtered.length / pageSize)
+    const paginated  = filtered.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    )
 
     return (
         <div className="d-flex admin-dashboard">
-            {/* Sidebar */}
-            <aside className="sidebar d-flex flex-column p-3 text-white">
-                <div className="mb-4 text-center">
-                    <img src={logo10} alt="PeopleMesh" className="logo mb-2" />
-                    <h5>PEOPLEMESH</h5>
-                </div>
-                <nav className="nav nav-pills flex-column">
-                    <a className="nav-link" href="#"><i className="bi bi-grid-fill me-2"></i>Dashboard</a>
-                    <a className="nav-link active" href="#"><i className="bi bi-building me-2"></i>Companies</a>
-                    <a className="nav-link" href="#"><i className="bi bi-calendar-check me-2"></i>Holidays</a>
-                </nav>
-            </aside>
-
-            {/* Main Content */}
             <main className="flex-fill p-4 content-bg">
                 <h1 className="mb-4">Companies</h1>
 
-                {/* Search */}
+                {/* Arama */}
                 <div className="mb-3">
                     <input
-                        type="text"
                         className="form-control"
-                        placeholder="Search companies..."
+                        placeholder="Search…"
                         value={search}
-                        onChange={e => setSearch(e.target.value)}
+                        onChange={e => { setSearch(e.target.value); setCurrentPage(1) }}
                     />
                 </div>
 
-                {/* Company Table */}
+                {/* Tablo */}
                 <div className="card shadow-sm">
                     <div className="card-body p-0">
                         <table className="table mb-0 company-table">
                             <thead className="table-light">
                             <tr>
-                                <th>Company Name</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
+                                <th>Company</th>
+                                <th>Phone</th>
                                 <th>Plan</th>
-                                <th className="text-center">Actions</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th className="text-center">Active</th>
+                                <th className="text-center">Details</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {filtered.map(c => (
-                                <tr key={c.id}>
-                                    <td>{c.name}</td>
-                                    <td>{c.startDate}</td>
-                                    <td>{c.endDate}</td>
-                                    <td>{c.plan}</td>
+                            {paginated.map(c => (
+                                <tr key={c.id} className={!c.active ? 'table-secondary' : ''}>
+                                    <td>{c.companyName}</td>
+                                    <td>{c.companyPhoneNumber}</td>
+                                    <td>{c.subscriptionType}</td>
+                                    <td>{formatDate(c.subscriptionStart)}</td>
+                                    <td>{formatDate(c.subscriptionEnd)}</td>
                                     <td className="text-center">
-                                        <FiEdit2
-                                            className="action-icon"
-                                            title="Edit"
-                                            onClick={() => {/* open edit modal */}}
+                                        <BiPowerOff
+                                            size={20}
+                                            color={c.active ? '#28a745' : '#6c757d'}
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => toggleActive(c)}
                                         />
-                                        <FiArrowUpCircle
-                                            className="action-icon"
-                                            title="Upgrade Plan"
-                                            onClick={() => {/* upgrade plan logic */}}
-                                        />
-                                        <FiTrash2
-                                            className="action-icon text-danger"
-                                            title="Delete"
-                                            onClick={() => {/* delete logic */}}
+                                    </td>
+                                    <td className="text-center">
+                                        <AiOutlineEye
+                                            size={20}
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => showDetails(c)}
                                         />
                                     </td>
                                 </tr>
                             ))}
-                            {filtered.length === 0 && (
+                            {paginated.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="text-center py-4 text-muted">
+                                    <td colSpan={7} className="text-center py-4 text-muted">
                                         No companies found.
                                     </td>
                                 </tr>
@@ -111,7 +183,28 @@ export const CompanyListPage: React.FC = () => {
                         </table>
                     </div>
                 </div>
+
+                {/* Sayfalama */}
+                {totalPages > 1 && (
+                    <nav className="mt-3">
+                        <ul className="pagination justify-content-center">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                <li
+                                    key={page}
+                                    className={`page-item${page === currentPage ? ' active' : ''}`}
+                                >
+                                    <button
+                                        className="page-link"
+                                        onClick={() => setCurrentPage(page)}
+                                    >
+                                        {page}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                )}
             </main>
         </div>
-    );
-};
+    )
+}

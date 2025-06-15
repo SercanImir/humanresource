@@ -4,8 +4,15 @@ server:
   port: 9090
 
 spring:
-  profiles:
-    active: "${SPRING_PROFILES_ACTIVE:default}"
+#  profiles:
+#    active: "${SPRING_PROFILES_ACTIVE:default}"
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      # opsiyonel, zaman dilimi ayarı
+      adjust-dates-to-context-time-zone: false
 
   datasource:
     url: jdbc:postgresql://localhost:5432/humanresource
@@ -56,3 +63,5 @@ logging:
       max-file-size: 10MB
   level:
     root: info
+
+

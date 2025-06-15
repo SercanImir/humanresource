@@ -1,9 +1,7 @@
 package com.project.humanresource.config;
 
-
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.project.humanresource.utility.UserStatus;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -12,66 +10,73 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-
 import java.util.List;
 
 @Component
 public class JwtManager {
-    @Value("${security.jwt.secret}")
-    private String jwtSecret;
 
-    private String issuer = "Sercan IMIR";
-    private Long expirationDate = 1000L * 60 * 60 * 5;
-    private String base64Secret;
+    @Value("${security.jwt.secret}")
+    private String jwtSecret;         // Base64 formatında, en az 512‐bitlik bir secret
+
+    private final String issuer = "Sercan IMIR";
+    private final long expirationMillis = 1000L * 60 * 60 * 5; // 5 saat
 
     private Key hmacKey;
 
     @PostConstruct
     public void init() {
-        if (base64Secret == null || base64Secret.isBlank()) {
-            throw new IllegalStateException("JWT_SECRET environment variable is not set!");
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            throw new IllegalStateException("security.jwt.secret ayarı bulunamadı!");
         }
-
-        byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
+        // Base64 çöz, sonra HS512 için Key oluştur
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         this.hmacKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-
-
-    public String generateToken(Long userId, String email, List<String> roles){
-
-        Long now = System.currentTimeMillis();
-        Date issureAt = new Date(now);
-        Date expiration = new Date(now + expirationDate);
+    /**
+     * userId, email, rollerle bir JWT üretir.
+     */
+    public String generateToken(Long userId, String email, List<String> roles) {
+        long now = System.currentTimeMillis();
+        Date issuedAt   = new Date(now);
+        Date expiresAt  = new Date(now + expirationMillis);
 
         return Jwts.builder()
-                .setSubject(email)
                 .setIssuer(issuer)
-                .setIssuedAt(issureAt)
-                .setExpiration(expiration)
-                .signWith(SignatureAlgorithm.HS512,jwtSecret)
+                .setSubject(email)
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiresAt)
+                // claim’lere id ve roller ekleyelim
+                .claim("userId", userId)
+                .claim("roles", roles)
+                .signWith(hmacKey, SignatureAlgorithm.HS512)
                 .compact();
     }
 
     /**
-     * Token’dan subject (email) bilgisini okur.
+     * Token’dan email (subject) okur.
      */
-    public String getEmailFromToken(String token){
-        return Jwts.parser()
-                .setSigningKey(jwtSecret)
+    public String getEmailFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(hmacKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
     }
 
     /**
-     * Token’ın imza ve süre bazlı geçerliliğini kontrol eder.
+     * Token valid mi? (imza & süre)
      */
-    public boolean validateToken(String token){
+    public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(hmacKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        }catch (JwtException | IllegalArgumentException e){
+        } catch (JwtException | IllegalArgumentException e) {
+            // expired, malformed, unsupported, signature invalid vs.
             return false;
         }
     }

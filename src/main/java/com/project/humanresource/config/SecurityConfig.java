@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.*;
 
 import java.util.List;
@@ -51,8 +52,8 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder builder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
-        builder
-                .userDetailsService(jwtUserDetails)
+
+        builder.userDetailsService(jwtUserDetails)
 
 
               .passwordEncoder(passwordEncoder());
@@ -84,7 +85,7 @@ public class SecurityConfig {
                                 "/api/invitations/**"
                         ).permitAll()
                         // Admin işlemleri
-                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAuthority("SITE_ADMIN")
                         // Manager işlemleri
                         .requestMatchers("/api/manager/**").hasAuthority("MANAGER")
                         // Employee işlemleri
@@ -93,7 +94,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 // JWT filtresini Spring’in UsernamePasswordAuthenticationFilter’ından önce ekler
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(
+                        jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }

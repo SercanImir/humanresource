@@ -1,8 +1,14 @@
 
 import "./Navbar.css";
+import { useNavigate } from "react-router-dom";
 import logo10 from "../../assets/images/logo10.png";
 
 export const Navbar = () => {
+    const navigate = useNavigate();
+
+    const handleGetStarted = () => {
+        navigate("/register-login");                // butona tıklanınca bu rotaya gider
+    };
     return (
         <header className="navbar">
             <div className="navbar__left">
@@ -16,7 +22,7 @@ export const Navbar = () => {
                 <a href="#contact" className="navbar__link">Contact</a>
             </nav>
             <div className="navbar__right">
-                <button className="navbar__cta">Get Started</button>
+                <button onClick={handleGetStarted} className="navbar__cta">Get Started</button>
             </div>
         </header>
     );

@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserRoleServiceImpl implements IUserRoleService {
@@ -16,8 +18,11 @@ public class UserRoleServiceImpl implements IUserRoleService {
 
 
     @Override
-    public List<UserRole> findAllRole(Long userId) {
-        return userRoleRepository.findByUserId(userId);
+    public List<UserStatus> findAllRoleStatuses(Long userId) {
+        return userRoleRepository.findByUserId(userId)
+                .stream()
+                .map(r->r.getUserStatus())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -27,5 +32,10 @@ public class UserRoleServiceImpl implements IUserRoleService {
         newRole.setUserId(userId);
         newRole.setUserStatus(userStatus);
         userRoleRepository.save(newRole);
+    }
+
+    @Override
+    public void removeRole(Long id, UserStatus userStatus) {
+            userRoleRepository.deleteByUserIdAndUserStatus(id, userStatus);
     }
 }

@@ -10,8 +10,8 @@ const RoutingPage = () => (
         <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/register-login" element={<AuthForm />} />
-            <Route path="/admin"    element={<AdminPage/>}/>
-            <Route path="/admin-companylist"    element={<CompanyListPage/>}/>
+            <Route path="/admin/dashboard"    element={<AdminPage/>}/>
+            <Route path="/admin/companylist"    element={<CompanyListPage/>}/>
             <Route path="/admin-pendingcompanies"    element={<PendingCompaniesPage/>}/>
 
 

@@ -4,13 +4,14 @@ import com.project.humanresource.utility.SubscriptionType;
 
 import java.time.LocalDateTime;
 
-public record PendingCompanyResponseDto(
-        Long companyId,
+public record CompanyUpdateRequestDto(
         String companyName,
+        String companyPhoneNumber,
         String applicantFirstName,
         String applicantLastName,
         String applicantEmail,
         SubscriptionType subscriptionType,
-        LocalDateTime registrationDate
+        LocalDateTime subscriptionStart,
+        LocalDateTime subscriptionEnd
 ) {
 }

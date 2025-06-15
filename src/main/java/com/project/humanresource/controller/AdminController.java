@@ -1,22 +1,12 @@
 package com.project.humanresource.controller;
 
-import com.project.humanresource.dto.request.PendingCompanyResponseDto;
-import com.project.humanresource.dto.response.BaseResponse;
-import com.project.humanresource.entity.Company;
-import com.project.humanresource.entity.User;
-import com.project.humanresource.exception.ErrorType;
-import com.project.humanresource.exception.HumanResourceException;
-import com.project.humanresource.repostiory.CompanyRepository;
+import com.project.humanresource.dto.response.*;
 import com.project.humanresource.service.IAdminService;
-import com.project.humanresource.service.IUserRoleService;
-import com.project.humanresource.service.IUserService;
-import com.project.humanresource.utility.UserStatus;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -27,15 +17,7 @@ public class AdminController {
 
    private final IAdminService adminService;
 
-    @PostMapping("/approve-user/{id}")
-    public ResponseEntity<BaseResponse<Boolean>> approveUser(@PathVariable Long id) {
-       adminService.approveUser(id);
-       return ResponseEntity.ok(BaseResponse.<Boolean>builder()
-                       .code(200)
-                       .message("User approved and subscription started.")
-                       .data(true)
-               .build());
-    }
+
 
     @GetMapping("/companies/pending")
     public ResponseEntity<BaseResponse<List<PendingCompanyResponseDto>>> listPending() {
@@ -50,7 +32,7 @@ public class AdminController {
     }
 
 
-    @PostMapping("/approve/{id}")
+    @PostMapping("/companies/{id}/approve")
     public ResponseEntity<BaseResponse<Boolean>> approveCompany(@PathVariable Long id) {
         adminService.approveCompany(id);
         return ResponseEntity.ok(
@@ -61,4 +43,44 @@ public class AdminController {
                         .build()
         );
     }
+
+    @PostMapping("/companies/{id}/reject")
+    public ResponseEntity<BaseResponse<Boolean>> rejectCompany(@PathVariable Long id) {
+        adminService.rejectCompany(id);
+        return ResponseEntity.ok(BaseResponse.<Boolean>builder()
+                        .code(200)
+                        .message("Company rejected successfully.")
+                        .data(true)
+                .build());
+    }
+
+
+    @GetMapping("/companies")
+    public ResponseEntity<BaseResponse<List<CompanyListResponseDto>>> listCompanies() {
+        List<CompanyListResponseDto> list = adminService.getApprovedCompanies();
+        return ResponseEntity.ok(BaseResponse.<List<CompanyListResponseDto>>builder()
+                        .code(200)
+                        .message("Companies retrieved.")
+                        .data(list)
+                .build());
+    }
+
+    @PostMapping("/companies/{id}/toggle")
+    public ResponseEntity<BaseResponse<Boolean>> toggleActiveCompany(@PathVariable Long id) {
+        adminService.toggleCompanyActive(id);
+        return ResponseEntity.ok(BaseResponse.<Boolean>builder()
+                        .code(200)
+                .message("Company active successfully.")
+                .data(true)
+                .build());
+    }
+
+    @GetMapping ("/statistics")
+    public ResponseEntity<StatisticsResponseDto> getStatictics() {
+        StatisticsResponseDto stats=adminService.getStatistics();
+        return ResponseEntity.ok(stats);
+    }
+
+
+
 }

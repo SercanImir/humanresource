@@ -1,4 +1,5 @@
 import React, { useState, type ChangeEvent, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AuthForm.css";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -13,7 +14,12 @@ type SubscriptionOption = "Monthly" | "Quarterly" | "HalfYearly" | "Yearly" | "T
 
 
 
+
+
 const AuthForm: React.FC = () => {
+
+    const navigate = useNavigate();
+
     const [tab, setTab] = useState<Tab>("register");
     const [showPassword, setShowPassword] = useState(false);
     const [showRePassword, setShowRePassword] = useState(false);
@@ -110,7 +116,7 @@ const AuthForm: React.FC = () => {
             setLoading(false);
         }
     };
-    // 2) Login handler
+    // 2) Login handler (güncellendi)
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
@@ -128,12 +134,42 @@ const AuthForm: React.FC = () => {
                 throw new Error(body.message || "Giriş başarısız oldu");
             }
 
-            const { token, type } = body.data;
-            localStorage.setItem("authToken", `${type} ${token}`);
-            alert("Giriş başarılı!");
-            // TODO: yönlendirme (dashboard vs.)
+            // ---- Burada "role" değil "roles" olarak destructure ediyoruz ----
+            const { token, roles } = body.data as {
+                token: string;
+
+                roles: string[];
+            };
+
+            // ---- Tek bir anahtarla sadece HAM token'ı saklıyoruz ----
+            localStorage.setItem("token", token);
+
+            // Başarılı giriş bildirimi
+            await MySwal.fire({
+                icon: "success",
+                title: "Giriş Başarılı",
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 1200,
+            });
+
+            // ---- Rol bazlı yönlendirme ----
+            if (roles.includes("SITE_ADMIN")) {
+                navigate("/admin/dashboard");
+            } else if (roles.includes("MANAGER")) {
+                navigate("/manager/dashboard");
+            } else {
+                navigate("/employee/dashboard");
+            }
         } catch (err: any) {
-            setError(err.message);
+            await MySwal.fire({
+                icon: "error",
+                title: "Hata",
+                text: err.message,
+                confirmButtonText: "Tamam",
+                customClass: { confirmButton: "swal2-confirm-auth" },
+            });
         } finally {
             setLoading(false);
         }
