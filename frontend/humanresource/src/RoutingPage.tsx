@@ -4,6 +4,7 @@ import AuthForm from './pages/AuthForm/AuthForm';
 import {AdminPage} from "./pages/AdminPage/AdminPage.tsx";
 import {CompanyListPage} from "./pages/AdminPage/CompanyListPage.tsx";
 import {PendingCompaniesPage} from "./pages/AdminPage/PendingCompaniesPage.tsx";
+import {ManagerPage} from "./pages/ManagerPage/ManagerPage.tsx";
 
 const RoutingPage = () => (
     <BrowserRouter>
@@ -13,6 +14,8 @@ const RoutingPage = () => (
             <Route path="/admin/dashboard"    element={<AdminPage/>}/>
             <Route path="/admin/companylist"    element={<CompanyListPage/>}/>
             <Route path="/admin-pendingcompanies"    element={<PendingCompaniesPage/>}/>
+            <Route path="/deneme"    element={<ManagerPage/>}/>
+
 
 
         </Routes>

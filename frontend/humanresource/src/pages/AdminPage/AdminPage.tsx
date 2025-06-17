@@ -43,6 +43,13 @@ interface Statistics {
     totalEmployees: number;
 }
 
+// interface Termination artık subscriptionEnd ISO string’ini ve daysLeft’i tutacak
+interface Termination {
+    company: string;
+    endDate: string;
+    daysLeft: number;
+}
+
 export const AdminPage: React.FC = () => {
     // Sayfa durumu
     const [activePage, setActivePage] = useState<'dashboard'|'pending'|'companies'|'holidays'>('dashboard');
@@ -54,24 +61,48 @@ export const AdminPage: React.FC = () => {
         totalEmployees: 0
     });
 
+    const [upcoming, setUpcoming] = useState<Termination[]>([]);
+
     // ❷ Dashboard aktif olduğunda backend’den al
     useEffect(() => {
         if (activePage === 'dashboard') {
             (async () => {
                 const token = localStorage.getItem('token') || '';
-                try {
-                    const resp = await fetch('http://localhost:9090/api/admin/statistics', {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    if (resp.ok) {
-                        const data: Statistics = await resp.json();
-                        setStats(data);
-                    } else {
-                        console.error('Statistics yüklenemedi:', resp.status);
-                    }
-                } catch (err) {
-                    console.error(err);
+
+                // 1) İstatistikler
+                const statRes = await fetch('http://localhost:9090/api/admin/statistics', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (statRes.ok) {
+                    setStats(await statRes.json());
                 }
+
+                // 2) Onaylanmış şirketleri al
+                const compRes = await fetch('http://localhost:9090/api/admin/companies', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!compRes.ok) {
+                    console.error('Companies yüklenemedi:', compRes.status);
+                    return;
+                }
+                const comps: Array<{
+                    companyName: string;
+                    subscriptionEnd: string;
+                }> = (await compRes.json()).data;
+
+                // 3) Tarihe göre sırala, kalan gününü hesapla, 0’dan büyükleri al, ilk 3’ü seç
+                const today = Date.now();
+                const next3 = comps
+                    .map(c => {
+                        const endTs = Date.parse(c.subscriptionEnd);
+                        const days = Math.ceil((endTs - today) / (1000 * 60 * 60 * 24));
+                        return { company: c.companyName, endDate: c.subscriptionEnd, daysLeft: days };
+                    })
+                    .filter(t => t.daysLeft >= 0)
+                    .sort((a, b) => a.daysLeft - b.daysLeft)
+                    .slice(0, 3);
+
+                setUpcoming(next3);
             })();
         }
     }, [activePage]);
@@ -135,12 +166,8 @@ export const AdminPage: React.FC = () => {
         });
     };
 
-    // Örnek tatiller ve terminasyon verileri
-    const terminations: Termination[] = [
-        { company: 'Acme Inc.', endDate: '2024-05-15', daysLeft: 30 },
-        { company: 'Beta Corp', endDate: '2024-06-20', daysLeft: 66 },
-        { company: 'Gamma LLC', endDate: '2024-07-10', daysLeft: 86 },
-    ];
+
+
     const holidays: Holiday[] = [
         { name: "Yeni Yıl Günü",     date: '2024-01-01' },
         { name: 'İşçi Bayramı',      date: '2024-05-01' },
@@ -240,13 +267,20 @@ export const AdminPage: React.FC = () => {
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {terminations.map(t => (
+                                    {upcoming.map(t => (
                                         <tr key={t.company} onClick={() => handleRowClick(t)}>
                                             <td>{t.company}</td>
-                                            <td>{t.endDate}</td>
+                                            <td>{new Date(t.endDate).toLocaleDateString()}</td>
                                             <td>{t.daysLeft}</td>
                                         </tr>
                                     ))}
+                                    {upcoming.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="text-center py-4 text-muted">
+                                                Yaklaşan abonelik bulunamadı.
+                                            </td>
+                                        </tr>
+                                    )}
                                     </tbody>
                                 </table>
                             </div>

@@ -1,0 +1,56 @@
+.sidebar {
+    width: 240px;
+    background-color: #0D1B2A;
+    min-height: 100vh;
+}
+
+.sidebar .nav-link {
+    color: #adb5bd;
+    padding: 10px 15px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover {
+    background-color: #ffffff20;
+    color: #fff;
+}
+
+.logo {
+    width: 140px;
+}
+
+.content-bg {
+    background-color: #edf2f4;
+    min-height: 100vh;
+}
+
+.stat-card {
+    background-color: #fff;
+    border: none;
+    border-radius: 10px;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: #003566;
+}
+
+.stat-title {
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+    color: #6c757d;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: 0.25rem;
+    color: #212529;
+}
+
+.card-title {
+    font-weight: 600;
+    color: #0D1B2A;
+}
