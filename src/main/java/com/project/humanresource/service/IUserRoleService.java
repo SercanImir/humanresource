@@ -6,10 +6,10 @@ import com.project.humanresource.utility.UserStatus;
 import java.util.List;
 
 public interface IUserRoleService {
-
+    void assignRole(Long id, UserStatus userStatus);
     List<UserStatus> findAllRoleStatuses(Long userId);
 
-    void assignRole(Long id, UserStatus userStatus);
+
 
     void removeRole(Long id, UserStatus userStatus);
 }

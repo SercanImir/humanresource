@@ -34,9 +34,9 @@ export const CompanyListPage: React.FC = () => {
     // → 1) Veri çekme
     useEffect(() => {
         (async () => {
-            const auth = localStorage.getItem('authToken') || ''
+            const token = localStorage.getItem("token") || ''
             const resp = await fetch('http://localhost:9090/api/admin/companies', {
-                headers: { Authorization: auth }
+                headers: { Authorization: `Bearer ${token}` }
             })
             const body = await resp.json()
             setList(body.data as Company[])
@@ -61,10 +61,10 @@ export const CompanyListPage: React.FC = () => {
         if (!isConfirmed) return
 
         try {
-            const auth = localStorage.getItem('authToken') || ''
+            const token = localStorage.getItem("token") || ''
             const resp = await fetch(
                 `http://localhost:9090/api/admin/companies/${c.id}/toggle`,
-                { method: 'POST', headers: { Authorization: auth } }
+                { method: 'POST', headers: { Authorization: `Bearer ${token}` } }
             )
             const body = await resp.json()
             if (!resp.ok) throw new Error(body.message || resp.statusText)

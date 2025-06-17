@@ -98,6 +98,7 @@ public class AdminServiceImpl implements IAdminService {
         User user= userRepository.findById(employee.getUserId())
                 .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
 
+
         user.setEnabled(true);
         userService.save(user);
         userRoleService.removeRole(user.getId(),UserStatus.PENDING);

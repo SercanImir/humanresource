@@ -3,6 +3,7 @@ package com.project.humanresource.service;
 import com.project.humanresource.entity.UserRole;
 import com.project.humanresource.repostiory.UserRoleRepository;
 import com.project.humanresource.utility.UserStatus;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class UserRoleServiceImpl implements IUserRoleService {
 
 
     @Override
+
     public List<UserStatus> findAllRoleStatuses(Long userId) {
         return userRoleRepository.findByUserId(userId)
                 .stream()
@@ -26,8 +28,12 @@ public class UserRoleServiceImpl implements IUserRoleService {
     }
 
     @Override
+    @Transactional
     public void assignRole(Long userId, UserStatus userStatus ) {
         // Sonra yeni rolü ata
+        if (userRoleRepository.existsByUserIdAndUserStatus(userId, userStatus)) {
+            return;
+        }
         UserRole newRole = new UserRole();
         newRole.setUserId(userId);
         newRole.setUserStatus(userStatus);
@@ -35,6 +41,7 @@ public class UserRoleServiceImpl implements IUserRoleService {
     }
 
     @Override
+    @Transactional
     public void removeRole(Long id, UserStatus userStatus) {
             userRoleRepository.deleteByUserIdAndUserStatus(id, userStatus);
     }

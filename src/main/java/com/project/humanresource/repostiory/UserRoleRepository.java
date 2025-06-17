@@ -20,4 +20,5 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
     long countDistinctUserIdByStatus(@Param("status") UserStatus status);
 
 
+    boolean existsByUserIdAndUserStatus(Long userId, UserStatus userStatus);
 }

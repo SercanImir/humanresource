@@ -58,10 +58,10 @@ export const AdminPage: React.FC = () => {
     useEffect(() => {
         if (activePage === 'dashboard') {
             (async () => {
-                const token = localStorage.getItem('authToken') || '';
+                const token = localStorage.getItem('token') || '';
                 try {
                     const resp = await fetch('http://localhost:9090/api/admin/statistics', {
-                        headers: { Authorization: token }
+                        headers: { Authorization: `Bearer ${token}` }
                     });
                     if (resp.ok) {
                         const data: Statistics = await resp.json();

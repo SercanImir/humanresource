@@ -31,12 +31,12 @@ export const PendingCompaniesPage: React.FC = () => {
     const fetchPending = async () => {
         setLoading(true)
         try {
-            const auth = localStorage.getItem('authToken') || ''
+            const token = localStorage.getItem('token') || ''
             const resp = await fetch(
                 'http://localhost:9090/api/admin/companies/pending',
                 {
                     method: 'GET',
-                    headers: { Authorization: auth }
+                    headers: { Authorization: `Bearer ${token}` }
                 }
             )
             if (!resp.ok) {
@@ -71,10 +71,11 @@ export const PendingCompaniesPage: React.FC = () => {
             confirmButtonText: 'Evet, onayla'
         }).then(async ({ isConfirmed }) => {
             if (!isConfirmed) return
-            const auth = localStorage.getItem('authToken') || ''
+            const token = localStorage.getItem("token") || ''
             const resp = await fetch(
                 `http://localhost:9090/api/admin/companies/${id}/approve`,
-                { method: 'POST', headers: { Authorization: auth } }
+                { method: 'POST', headers:
+                        { Authorization: `Bearer ${token}`   } }
             )
             const body = await resp.json()
             if (resp.ok) {
@@ -93,10 +94,10 @@ export const PendingCompaniesPage: React.FC = () => {
             confirmButtonText: 'Evet, reddet'
         }).then(async ({ isConfirmed }) => {
             if (!isConfirmed) return
-            const auth = localStorage.getItem('authToken') || ''
+            const token = localStorage.getItem("token") || ''
             const resp = await fetch(
                 `http://localhost:9090/api/admin/companies/${id}/reject`,
-                { method: 'POST', headers: { Authorization: auth } }
+                { method: 'POST', headers: { Authorization: `Bearer ${token}` } }
             )
             const body = await resp.json()
             if (resp.ok) {
