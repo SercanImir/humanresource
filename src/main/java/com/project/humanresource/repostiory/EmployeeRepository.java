@@ -3,6 +3,7 @@ package com.project.humanresource.repostiory;
 import com.project.humanresource.entity.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+
 import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
@@ -11,4 +12,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
      * aynı zamanda başvuru sahibidir.
      */
     Optional<Employee> findFirstByCompanyId(Long companyId);
+
+    Optional<Employee> findByUserId(Long userId);
 }

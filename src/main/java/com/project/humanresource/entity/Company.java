@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @SuperBuilder
@@ -26,7 +27,8 @@ public class Company extends BaseEntity {
     String companyName;
 
     String companyAddress;
-
+    String city;
+    String taxNo;
     @NotBlank
     @Pattern(regexp = "^\\d{11}$")
     String companyPhoneNumber;
@@ -35,6 +37,7 @@ public class Company extends BaseEntity {
     String companyEmail;
 
     boolean isVerified = false;
+    LocalDateTime foundationDate;
 
     @Enumerated(EnumType.STRING)
     SubscriptionType subscriptionType; // örn: "Aylık", "Yıllık"

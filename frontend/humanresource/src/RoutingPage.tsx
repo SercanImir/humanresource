@@ -15,6 +15,8 @@ const RoutingPage = () => (
             <Route path="/admin/companylist"    element={<CompanyListPage/>}/>
             <Route path="/admin-pendingcompanies"    element={<PendingCompaniesPage/>}/>
             <Route path="/deneme"    element={<ManagerPage/>}/>
+            <Route path="/manager/dashboard"    element={<ManagerPage/>}/>
+
 
 
 

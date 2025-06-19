@@ -8,5 +8,6 @@ public record JwtResponseDto(
         String token,
         String email,
         List<UserStatus> roles
+
 ) {
 }

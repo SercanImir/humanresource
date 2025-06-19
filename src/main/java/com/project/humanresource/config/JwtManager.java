@@ -36,7 +36,7 @@ public class JwtManager {
     /**
      * userId, email, rollerle bir JWT üretir.
      */
-    public String generateToken(Long userId, String email, List<String> roles) {
+    public String generateToken(Long userId, String email, List<String> roles ) {
         long now = System.currentTimeMillis();
         Date issuedAt   = new Date(now);
         Date expiresAt  = new Date(now + expirationMillis);
@@ -79,5 +79,14 @@ public class JwtManager {
             // expired, malformed, unsupported, signature invalid vs.
             return false;
         }
+    }
+
+    public Long getUserIdFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(hmacKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userId",Long.class);
     }
 }

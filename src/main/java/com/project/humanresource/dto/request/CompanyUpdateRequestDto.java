@@ -12,6 +12,10 @@ public record CompanyUpdateRequestDto(
         String applicantEmail,
         SubscriptionType subscriptionType,
         LocalDateTime subscriptionStart,
-        LocalDateTime subscriptionEnd
+        LocalDateTime subscriptionEnd,
+        String taxNo,
+        String address,
+        String city,
+        LocalDateTime foundationDate
 ) {
 }
