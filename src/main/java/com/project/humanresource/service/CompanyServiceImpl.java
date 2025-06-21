@@ -19,12 +19,7 @@ public class CompanyServiceImpl implements ICompanyService{
     private final EmployeeRepository employeeRepository;
 
     final CompanyRepository companyRepository;
-    @Override
-    public CompanyResponseDto getCompanyId(Long companyId) {
-        Company company=companyRepository.findById(companyId)
-                .orElseThrow(()-> new HumanResourceException(ErrorType.COMMENT_NOT_FOUND));
-        return mapDto(company);
-    }
+//
 
 
 
@@ -62,10 +57,20 @@ public class CompanyServiceImpl implements ICompanyService{
 
     public CompanyResponseDto getCompanyByEmployeeUserId(Long userId) {
         Employee employee = employeeRepository.findByUserId(userId)
-                .orElseThrow(() -> new HumanResourceException(ErrorType.USER_NOT_FOUND));
+                .orElseThrow(() -> {
+                    System.out.println("EMPLOYEE YOK!!! userId: " + userId);
+                    return new HumanResourceException(ErrorType.USER_NOT_FOUND);
+                });
+        System.out.println("Bulunan employee: " + employee);
+
         Company company = companyRepository.findById(employee.getCompanyId())
-                .orElseThrow(() -> new HumanResourceException(ErrorType.COMMENT_NOT_FOUND));
-        return mapDto(company); // Senin mevcut Company -> CompanyResponseDto methodun
+                .orElseThrow(() -> {
+                    System.out.println("COMPANY YOK!!! id: " + employee.getCompanyId());
+                    return new HumanResourceException(ErrorType.COMMENT_NOT_FOUND);
+                });
+        System.out.println("Bulunan company: " + company);
+
+        return mapDto(company);
     }
 
 

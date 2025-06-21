@@ -28,12 +28,13 @@ export const CompanyInfoForm: React.FC = () => {
     useEffect(() => {
         setLoading(true);
         fetch('/api/manager/company/me', {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
+            headers: { 'Authorization': 'Bearer ' + token }
         })
             .then(res => res.json())
-            .then(result => setCompany(result.data))
+            .then(result => {
+                console.log("API DÖNÜŞÜ:", result);  // <-- Bunu ekle ve bak
+                setCompany(result.data);
+            })
             .catch(() => setError('Şirket bilgisi yüklenemedi.'))
             .finally(() => setLoading(false));
     }, []);

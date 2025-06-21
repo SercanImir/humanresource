@@ -18,17 +18,7 @@ public class CompanyController {
     private final ICompanyService companyService;
     private final JwtManager jwtManager;
 
-    @GetMapping("/{companyId}")
-    public ResponseEntity<BaseResponse<CompanyResponseDto>> getCompanyById(@PathVariable Long companyId) {
-        CompanyResponseDto dto = companyService.getCompanyId(companyId);
-        return ResponseEntity.ok(
-                BaseResponse.<CompanyResponseDto>builder()
-                        .code(200)
-                        .message("Company details fetched successfully.")
-                        .data(dto)
-                        .build()
-        );
-    }
+//
 
     @PutMapping("/me")
     public ResponseEntity<BaseResponse<CompanyResponseDto>> updateOwnCompany(
@@ -48,16 +38,18 @@ public class CompanyController {
 
     @GetMapping("/me")
     public ResponseEntity<BaseResponse<CompanyResponseDto>> getOwnCompany(@RequestHeader("Authorization") String header) {
-       String token=header.replace("Bearer","");
-       Long userId=jwtManager.getUserIdFromToken(token);
+        String token = header.replace("Bearer", "").trim();
+        Long userId = jwtManager.getUserIdFromToken(token);
+        System.out.println("Kullanıcıdan çıkan userId: " + userId);
 
-       CompanyResponseDto dto=companyService.getCompanyByEmployeeUserId(userId);
+        CompanyResponseDto dto = companyService.getCompanyByEmployeeUserId(userId);
+        System.out.println("Backendte bulunan CompanyResponseDto: " + dto);
 
-       return ResponseEntity.ok(BaseResponse.<CompanyResponseDto>builder()
-                       .code(200)
-                       .message("Company details fetched successfully.")
-                       .data(dto)
-               .build());
+        return ResponseEntity.ok(BaseResponse.<CompanyResponseDto>builder()
+                .code(200)
+                .message("Company details fetched successfully.")
+                .data(dto)
+                .build());
     }
 
 
