@@ -8,13 +8,14 @@ import java.time.LocalDateTime;
 public record CompanyResponseDto(
         Long id,
         String companyName,
-        String email,
-        String phoneNumber,
-        SubscriptionType subscriptionType,
-        LocalDateTime subscriptionStart,
-        LocalDateTime subscriptionEnd,
+        String companyEmail,
+        String companyPhoneNumber,
+        String companyAddress,
         String city,
         String taxNo,
-        LocalDateTime foundationDate
+        LocalDate foundationDate,
+        SubscriptionType subscriptionType,
+        LocalDateTime subscriptionStart,
+        LocalDateTime subscriptionEnd
 ) {
 }

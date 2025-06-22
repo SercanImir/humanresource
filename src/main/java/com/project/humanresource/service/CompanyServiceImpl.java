@@ -30,7 +30,7 @@ public class CompanyServiceImpl implements ICompanyService{
         Company company=companyRepository.findById(employee.getCompanyId())
                 .orElseThrow(() -> new HumanResourceException(ErrorType.COMPANY_NOT_FOUND));
         company.setCompanyName(dto.companyName());
-        company.setCompanyAddress(dto.address());
+        company.setCompanyAddress(dto.companyAddress());
         company.setCompanyPhoneNumber(dto.companyPhoneNumber());
         company.setCity(dto.city());
         company.setTaxNo(dto.taxNo());
@@ -45,12 +45,13 @@ public class CompanyServiceImpl implements ICompanyService{
                 company.getCompanyName(),
                 company.getCompanyEmail(),
                 company.getCompanyPhoneNumber(),
-                company.getSubscriptionType(),
-                company.getSubscriptionStart(),
-                company.getSubscriptionEnd(),
+                company.getCompanyAddress(),
                 company.getCity(),
                 company.getTaxNo(),
-                company.getFoundationDate()
+                company.getFoundationDate(),
+                company.getSubscriptionType(),
+                company.getSubscriptionStart(),
+                company.getSubscriptionEnd()
 
         );
     }

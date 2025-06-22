@@ -37,7 +37,7 @@ public class Company extends BaseEntity {
     String companyEmail;
 
     boolean isVerified = false;
-    LocalDateTime foundationDate;
+    LocalDate foundationDate;
 
     @Enumerated(EnumType.STRING)
     SubscriptionType subscriptionType; // örn: "Aylık", "Yıllık"

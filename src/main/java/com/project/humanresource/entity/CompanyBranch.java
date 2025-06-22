@@ -22,13 +22,15 @@ public class CompanyBranch extends BaseEntity {
 
     String companyBranchAddress;
 
+    String city;
+
     @Pattern(regexp = "^\\d{11}$")
     String companyBranchPhoneNumber;
 
     String companyBranchEmail;
 
 
-    @NotNull
+
      Long companyId;
 
 

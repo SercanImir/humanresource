@@ -1,7 +1,6 @@
-// src/pages/CompanyPage/CompanyManagementPage.tsx
-
 import React, { useState } from 'react';
 import { CompanyInfoForm } from './CompanyInfoForm';
+import { CompanyBranchesTab } from './CompanyBranchesTab';
 
 export const CompanyManagementPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'info' | 'branches' | 'departments' | 'titles'>('info');
@@ -32,7 +31,7 @@ export const CompanyManagementPage: React.FC = () => {
             </ul>
             <div className="tab-content shadow-sm p-4 rounded bg-white">
                 {activeTab === 'info' && <CompanyInfoForm />}
-                {activeTab === 'branches' && <div>Şube yönetimi sekmesi</div>}
+                {activeTab === 'branches' && <CompanyBranchesTab />}
                 {activeTab === 'departments' && <div>Departman yönetimi sekmesi</div>}
                 {activeTab === 'titles' && <div>Ünvan yönetimi sekmesi</div>}
             </div>

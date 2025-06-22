@@ -17,7 +17,7 @@ interface Company {
     companyAddress: string
     applicantFirstName: string
     applicantLastName: string
-    applicantEmail: string
+    companyEmail: string
     registrationDate: string
     subscriptionType: string
     subscriptionStart: string
@@ -89,7 +89,7 @@ export const CompanyListPage: React.FC = () => {
             html: `
         <table class="swal2-table">
           <tr><th>Başvuran</th><td>${c.applicantFirstName} ${c.applicantLastName}</td></tr>
-          <tr><th>Email</th><td>${c.applicantEmail}</td></tr>
+          <tr><th>Email</th><td>${c.companyEmail}</td></tr>
           <tr><th>Telefon</th><td>${c.companyPhoneNumber}</td></tr>
           <tr><th>Adres</th><td>${c.companyAddress}</td></tr>
           <tr><th>Başvuru Tarihi</th><td>${formatDate(c.registrationDate)}</td></tr>

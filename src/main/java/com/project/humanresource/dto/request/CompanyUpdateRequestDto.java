@@ -2,6 +2,7 @@ package com.project.humanresource.dto.request;
 
 import com.project.humanresource.utility.SubscriptionType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record CompanyUpdateRequestDto(
@@ -9,13 +10,13 @@ public record CompanyUpdateRequestDto(
         String companyPhoneNumber,
         String applicantFirstName,
         String applicantLastName,
-        String applicantEmail,
+        String companyEmail,
         SubscriptionType subscriptionType,
         LocalDateTime subscriptionStart,
         LocalDateTime subscriptionEnd,
         String taxNo,
-        String address,
         String city,
-        LocalDateTime foundationDate
+        LocalDate foundationDate,
+        String companyAddress
 ) {
 }
