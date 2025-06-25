@@ -9,4 +9,8 @@ public interface ICompanyBranchService {
     CompanyBranchResponseDto createBranchByUserId(Long userId, CompanyBranchRequestDto dto);
 
     List<CompanyBranchResponseDto> getBranchesByUserId(Long userId);
+
+    CompanyBranchResponseDto updateBranchById(Long userId,Long id, CompanyBranchRequestDto dto);
+
+    CompanyBranchResponseDto toggleBranchActiveById(Long userId, Long id);
 }

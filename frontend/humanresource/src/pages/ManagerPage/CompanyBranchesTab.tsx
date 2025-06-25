@@ -27,6 +27,7 @@ export const CompanyBranchesTab: React.FC = () => {
     const [branches, setBranches] = useState<BranchDto[]>([]);
     const [form, setForm] = useState<Omit<BranchDto, "id" | "active">>(emptyForm);
     const [editingId, setEditingId] = useState<number | null>(null);
+    const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -52,26 +53,43 @@ export const CompanyBranchesTab: React.FC = () => {
 
     useEffect(() => {
         fetchBranches();
+        // eslint-disable-next-line
     }, []);
 
     // Form input değişikliği
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+        setError("");
     };
 
-    // Şube ekle veya güncelle
+    // Aynı isimli şube var mı (düzenleme hariç)
+    const isDuplicate = () => {
+        return branches.some(
+            (b) =>
+                b.branchName.trim().toLowerCase() === form.branchName.trim().toLowerCase() &&
+                (editingId === null || b.id !== editingId)
+        );
+    };
+
+    // Şube ekle/güncelle
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
         setError("");
         setSuccess("");
-
+        if (!form.branchName.trim()) {
+            setError("Şube adı zorunludur!");
+            return;
+        }
+        if (isDuplicate()) {
+            setError("Aynı isimde bir şube zaten mevcut!");
+            return;
+        }
+        setLoading(true);
         const isEditing = editingId !== null;
         const url = isEditing
             ? `http://localhost:9090/api/manager/branches/${editingId}`
-            : "http://localhost:9090/api/manager/add-branch/";
+            : "http://localhost:9090/api/manager/add-branch";
         const method = isEditing ? "PUT" : "POST";
-
         try {
             const resp = await fetch(url, {
                 method,
@@ -87,6 +105,7 @@ export const CompanyBranchesTab: React.FC = () => {
             }
             setForm(emptyForm);
             setEditingId(null);
+            setShowForm(false);
             setSuccess(isEditing ? "Şube güncellendi." : "Şube başarıyla eklendi.");
             fetchBranches();
         } catch {
@@ -106,14 +125,16 @@ export const CompanyBranchesTab: React.FC = () => {
             companyBranchEmail: branch.companyBranchEmail,
         });
         setEditingId(branch.id);
+        setShowForm(true);
         setSuccess("");
         setError("");
     };
 
-    // Düzenleme modundan çık
+    // Formu kapat
     const handleCancel = () => {
         setForm(emptyForm);
         setEditingId(null);
+        setShowForm(false);
         setError("");
         setSuccess("");
     };
@@ -145,103 +166,104 @@ export const CompanyBranchesTab: React.FC = () => {
 
     return (
         <div>
-            <div className="card shadow-sm mb-4" style={{ maxWidth: 900, margin: "auto" }}>
-                <div className="card-body">
-                    <h5 className="mb-3">
-                        <FiPlus /> {editingId ? "Şubeyi Düzenle" : "Şube Ekle"}
-                    </h5>
-                    <form onSubmit={handleSubmit}>
-                        <div className="row g-2">
-                            <div className="col-md-6 col-lg-4">
-                                <div className="input-group">
-                                    <span className="input-group-text"><FiHome /></span>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        placeholder="Şube Adı"
-                                        name="branchName"
-                                        value={form.branchName}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="col-md-6 col-lg-4">
-                                <div className="input-group">
-                                    <span className="input-group-text"><FiMapPin /></span>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        placeholder="Adres"
-                                        name="companyBranchAddress"
-                                        value={form.companyBranchAddress}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                            <div className="col-md-6 col-lg-4">
-                                <div className="input-group">
-                                    <span className="input-group-text"><FiMapPin /></span>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        placeholder="Şehir"
-                                        name="city"
-                                        value={form.city}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                            <div className="col-md-6 col-lg-4 mt-2 mt-lg-0">
-                                <div className="input-group">
-                                    <span className="input-group-text"><FiPhone /></span>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        placeholder="Telefon (11 hane)"
-                                        name="companyBranchPhoneNumber"
-                                        value={form.companyBranchPhoneNumber}
-                                        maxLength={11}
-                                        pattern="\d{11}"
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                            <div className="col-md-6 col-lg-4 mt-2 mt-lg-0">
-                                <div className="input-group">
-                                    <span className="input-group-text"><FiMail /></span>
-                                    <input
-                                        type="email"
-                                        className="form-control"
-                                        placeholder="E-posta"
-                                        name="companyBranchEmail"
-                                        value={form.companyBranchEmail}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="d-flex justify-content-end mt-3">
-                            {editingId ? (
-                                <>
-                                    <button type="submit" className="btn btn-primary me-2" disabled={loading}>
-                                        <FiCheck /> Kaydet
-                                    </button>
-                                    <button type="button" className="btn btn-secondary" onClick={handleCancel}>
-                                        <FiX /> Vazgeç
-                                    </button>
-                                </>
-                            ) : (
-                                <button type="submit" className="btn btn-success" disabled={loading}>
-                                    <FiPlus /> Ekle
-                                </button>
-                            )}
-                        </div>
-                        {error && <div className="alert alert-danger mt-2">{error}</div>}
-                        {success && <div className="alert alert-success mt-2">{success}</div>}
-                    </form>
-                </div>
+            {/* Sağ üstte şube ekle butonu */}
+            <div className="d-flex justify-content-end mb-3">
+                <button
+                    className="btn btn-warning"
+                    style={{
+                        backgroundColor: "#FFC107",
+                        color: "#222",
+                        border: "none",
+                        fontWeight: 500,
+                        fontSize: "1.2rem",
+                        padding: "12px 30px",
+                        borderRadius: "12px",
+                        boxShadow: "0 2px 10px rgba(255, 193, 7, 0.08)"
+                    }}
+                    onClick={() => {
+                        setShowForm(true);
+                        setEditingId(null);
+                        setForm(emptyForm);
+                        setError("");
+                        setSuccess("");
+                    }}
+                >
+                    <FiPlus style={{ marginRight: 8, fontSize: "1.2rem", verticalAlign: -2 }} />
+                    Şube Ekle
+                </button>
             </div>
+
+            {/* Ekle/Güncelle Formu */}
+            {showForm && (
+                <div className="card shadow-sm mb-4" style={{ maxWidth: 900, margin: "auto" }}>
+                    <div className="card-body">
+                        <h5 className="mb-3">
+                            {editingId ? <><FiEdit2 /> Şubeyi Düzenle</> : <><FiPlus /> Şube Ekle</>}
+                        </h5>
+                        <form onSubmit={handleSubmit}>
+                            <div className="row g-2">
+                                <div className="col-md-6 col-lg-4">
+                                    <div className="input-group">
+                                        <span className="input-group-text" style={{ background: "#eef2fb" }}>
+                                            <FiHome color="#2266aa" />
+                                        </span>
+                                        <input type="text" className="form-control" placeholder="Şube Adı"
+                                               name="branchName" value={form.branchName} onChange={handleChange} required />
+                                    </div>
+                                </div>
+                                <div className="col-md-6 col-lg-4">
+                                    <div className="input-group">
+                                        <span className="input-group-text" style={{ background: "#eef2fb" }}>
+                                            <FiMapPin color="#2266aa" />
+                                        </span>
+                                        <input type="text" className="form-control" placeholder="Adres"
+                                               name="companyBranchAddress" value={form.companyBranchAddress} onChange={handleChange} />
+                                    </div>
+                                </div>
+                                <div className="col-md-6 col-lg-4">
+                                    <div className="input-group">
+                                        <span className="input-group-text" style={{ background: "#eef2fb" }}>
+                                            <FiMapPin color="#2266aa" />
+                                        </span>
+                                        <input type="text" className="form-control" placeholder="Şehir"
+                                               name="city" value={form.city} onChange={handleChange} />
+                                    </div>
+                                </div>
+                                <div className="col-md-6 col-lg-4 mt-2 mt-lg-0">
+                                    <div className="input-group">
+                                        <span className="input-group-text" style={{ background: "#eef2fb" }}>
+                                            <FiPhone color="#2266aa" />
+                                        </span>
+                                        <input type="text" className="form-control" placeholder="Telefon (11 hane)"
+                                               name="companyBranchPhoneNumber" value={form.companyBranchPhoneNumber}
+                                               maxLength={11} pattern="\d{11}" onChange={handleChange} />
+                                    </div>
+                                </div>
+                                <div className="col-md-6 col-lg-4 mt-2 mt-lg-0">
+                                    <div className="input-group">
+                                        <span className="input-group-text" style={{ background: "#eef2fb" }}>
+                                            <FiMail color="#2266aa" />
+                                        </span>
+                                        <input type="email" className="form-control" placeholder="E-posta"
+                                               name="companyBranchEmail" value={form.companyBranchEmail} onChange={handleChange} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="d-flex justify-content-end mt-3">
+                                <button type="submit" className="btn btn-success me-2" disabled={loading}>
+                                    {editingId ? <><FiCheck /> Kaydet</> : <><FiPlus /> Ekle</>}
+                                </button>
+                                <button type="button" className="btn btn-secondary" onClick={handleCancel}>
+                                    <FiX /> Vazgeç
+                                </button>
+                            </div>
+                            {error && <div className="alert alert-danger mt-2">{error}</div>}
+                            {success && <div className="alert alert-success mt-2">{success}</div>}
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Şubeler Tablosu */}
             <div className="card shadow-sm" style={{ maxWidth: 1100, margin: "30px auto" }}>
                 <div className="card-body">
@@ -283,13 +305,18 @@ export const CompanyBranchesTab: React.FC = () => {
                                     </td>
                                     <td>
                                         <button
-                                            className="btn btn-sm btn-warning me-2"
+                                            className="btn btn-sm"
+                                            style={{
+                                                backgroundColor: "#FFC107",
+                                                color: "#222",
+                                                border: "none",
+                                                fontWeight: 500,
+                                            }}
                                             title="Düzenle"
                                             onClick={() => handleEdit(b)}
                                         >
-                                            <FiEdit2 />
+                                            <FiEdit2 style={{ verticalAlign: -2 }} /> Düzenle
                                         </button>
-                                        {/* Buraya sil butonu istersen ekleyebilirsin */}
                                     </td>
                                 </tr>
                             ))}

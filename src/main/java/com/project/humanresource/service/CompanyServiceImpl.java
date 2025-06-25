@@ -13,6 +13,8 @@ import com.project.humanresource.utility.SubscriptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements ICompanyService{
@@ -41,6 +43,8 @@ public class CompanyServiceImpl implements ICompanyService{
 
     private CompanyResponseDto mapDto(Company company) {
         return new CompanyResponseDto(
+
+
                 company.getId(),
                 company.getCompanyName(),
                 company.getCompanyEmail(),

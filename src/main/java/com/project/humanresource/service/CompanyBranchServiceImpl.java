@@ -22,10 +22,15 @@ public class CompanyBranchServiceImpl implements ICompanyBranchService {
 
     @Override
     public CompanyBranchResponseDto createBranchByUserId(Long userId, CompanyBranchRequestDto dto) {
+
         Employee employee = employeeRepository.findByUserId(userId)
                 .orElseThrow(()-> new HumanResourceException(ErrorType.USER_NOT_FOUND));
 
         Long companyId=employee.getCompanyId();
+        if (companyBranchRepository. existsByCompanyIdAndBranchName(companyId,dto.branchName())) {
+            throw new HumanResourceException(ErrorType.COMPANY_BRANCH_NOT_FOUND);
+        }
+
 
         CompanyBranch branch= CompanyBranch.builder()
                 .branchName(dto.branchName())
@@ -56,6 +61,41 @@ public class CompanyBranchServiceImpl implements ICompanyBranchService {
 
     }
 
+    @Override
+    public CompanyBranchResponseDto updateBranchById(Long userId, Long id, CompanyBranchRequestDto dto) {
+        Employee employee = employeeRepository.findByUserId(userId)
+                .orElseThrow(()-> new HumanResourceException(ErrorType.USER_NOT_FOUND));
+
+        Long companyId=employee.getCompanyId();
+        CompanyBranch companyBranch=companyBranchRepository.findByIdAndCompanyId(id,companyId)
+                        .orElseThrow(()->new HumanResourceException(ErrorType.COMPANY_BRANCH_NOT_FOUND));
+
+
+        companyBranch.setBranchName(dto.branchName());
+        companyBranch.setCompanyBranchAddress(dto.companyBranchAddress());
+        companyBranch.setCompanyBranchPhoneNumber(dto.companyBranchPhoneNumber());
+        companyBranch.setCompanyBranchEmail(dto.companyBranchEmail());
+        companyBranch.setCity(dto.city());
+        companyBranchRepository.save(companyBranch);
+        return mapToDto(companyBranch);
+    }
+
+
+
+    @Override
+    public CompanyBranchResponseDto toggleBranchActiveById(Long userId, Long id) {
+        Employee employee = employeeRepository.findByUserId(userId)
+                .orElseThrow(()-> new HumanResourceException(ErrorType.USER_NOT_FOUND));
+
+        Long companyId=employee.getCompanyId();
+
+        CompanyBranch companyBranch=companyBranchRepository.findByIdAndCompanyId(id,companyId)
+                .orElseThrow(()->new HumanResourceException(ErrorType.COMPANY_BRANCH_NOT_FOUND));
+        companyBranch.setActive(!companyBranch.isActive());
+        companyBranchRepository.save(companyBranch);
+        return mapToDto(companyBranch);
+    }
+
     public CompanyBranchResponseDto mapToDto(CompanyBranch companyBranch) {
         return new CompanyBranchResponseDto(
                 companyBranch.getId(),
@@ -63,7 +103,8 @@ public class CompanyBranchServiceImpl implements ICompanyBranchService {
                 companyBranch.getCompanyBranchAddress(),
                 companyBranch.getCity(),
                 companyBranch.getCompanyBranchPhoneNumber(),
-                companyBranch.getCompanyBranchEmail()
+                companyBranch.getCompanyBranchEmail(),
+                companyBranch.isActive()
 
 
         );

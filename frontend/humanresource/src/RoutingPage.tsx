@@ -6,6 +6,8 @@ import {CompanyListPage} from "./pages/AdminPage/CompanyListPage.tsx";
 import {PendingCompaniesPage} from "./pages/AdminPage/PendingCompaniesPage.tsx";
 import {ManagerPage} from "./pages/ManagerPage/ManagerPage.tsx";
 
+import {CompanyInfoForm} from "./pages/ManagerPage/CompanyInfoForm.tsx";
+
 const RoutingPage = () => (
     <BrowserRouter>
         <Routes>
@@ -14,7 +16,7 @@ const RoutingPage = () => (
             <Route path="/admin/dashboard"    element={<AdminPage/>}/>
             <Route path="/admin/companylist"    element={<CompanyListPage/>}/>
             <Route path="/admin-pendingcompanies"    element={<PendingCompaniesPage/>}/>
-            <Route path="/deneme"    element={<ManagerPage/>}/>
+            <Route path="/deneme"    element={<CompanyInfoForm/>}/>
             <Route path="/manager/dashboard"    element={<ManagerPage/>}/>
 
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FiEdit2, FiMapPin, FiPhone, FiMail, FiCalendar, FiHome, FiShield } from "react-icons/fi";
-import "bootstrap/dist/css/bootstrap.min.css";
+
 
 interface CompanyDto {
     id: number;
@@ -22,6 +22,7 @@ export const CompanyInfoForm: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [initialCompany, setInitialCompany] = useState<CompanyDto | null>(null);
 
     const token = localStorage.getItem("token");
 
@@ -31,16 +32,22 @@ export const CompanyInfoForm: React.FC = () => {
             headers: { Authorization: "Bearer " + token }
         })
             .then((res) => res.json())
-            .then((result) => setCompany(result.data))
+            .then((result) => {
+                setCompany(result.data);
+                setInitialCompany(result.data);
+            })
             .catch(() => setError("Şirket bilgisi yüklenemedi."))
             .finally(() => setLoading(false));
     }, []);
 
+    // --- Sadece değişen alanı güncelle, eski state'i koru! ---
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!company) return;
-        setCompany({ ...company, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setCompany(prev => prev ? { ...prev, [name]: value } : prev);
     };
 
+    // Kaydet
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -58,6 +65,7 @@ export const CompanyInfoForm: React.FC = () => {
             if (resp.ok) {
                 setSuccess("Şirket bilgileri güncellendi.");
                 setEditMode(false);
+                setInitialCompany(company); // yeni halini de yedekle
             } else {
                 setError("Güncelleme başarısız.");
             }
@@ -68,96 +76,148 @@ export const CompanyInfoForm: React.FC = () => {
         }
     };
 
+    // Vazgeç
+    const handleCancel = () => {
+        setCompany(initialCompany);
+        setEditMode(false);
+        setError("");
+        setSuccess("");
+    };
+
     if (loading) return <div>Yükleniyor...</div>;
     if (!company) return <div>Şirket bilgisi bulunamadı.</div>;
 
-    // Modern bilgi satırı
-    const InfoRow = ({
-                         icon,
-                         label,
-                         value,
-                         name,
-                         required = false,
-                         type = "text",
-                         disabled = false,
-                     }: {
-        icon: React.ReactNode;
-        label: string;
-        value: any;
-        name: string;
-        required?: boolean;
-        type?: string;
-        disabled?: boolean;
-    }) => (
-        <div className="d-flex align-items-center mb-3">
-            <span style={{ minWidth: 30, color: "#2266aa" }}>{icon}</span>
-            <label className="me-3 mb-0" style={{ minWidth: 130 }}>{label}</label>
-            {editMode && !disabled ? (
-                <input
-                    type={type}
-                    className="form-control"
-                    style={{ maxWidth: 280 }}
-                    name={name}
-                    value={value || ""}
-                    onChange={handleChange}
-                    required={required}
-                    disabled={disabled}
-                    max={name === "foundationDate" ? new Date().toISOString().slice(0, 10) : undefined}
-                />
-            ) : (
-                <div style={{
-                    flex: 1, background: "#f8f9fa", borderRadius: 8, padding: "6px 12px"
-                }}>
-                    {type === "date" && value ? value.slice(0, 10) : value || <span style={{ color: "#bbb" }}>-</span>}
-                </div>
-            )}
-        </div>
-    );
-
     return (
-        <div className="card shadow-sm" style={{ maxWidth: 650, margin: "auto" }}>
-            <div className="card-body">
+        <div
+            className="card shadow"
+            style={{
+                maxWidth: 560,
+                margin: "auto",
+                borderRadius: 24,
+                background: "#f9fafb",
+                boxShadow: "0 4px 16px rgba(100,100,120,0.07)"
+            }}
+        >
+            <div className="card-body p-5">
                 <div className="d-flex align-items-center justify-content-between mb-4">
-                    <h4 className="mb-0">Şirket Bilgileri</h4>
-                    <button
-                        type="button"
-                        className={`btn ${editMode ? "btn-secondary" : "btn-warning"} btn-sm`}
-                        onClick={() => setEditMode((val) => !val)}
-                    >
-                        <FiEdit2 /> {editMode ? "Vazgeç" : "Düzenle"}
-                    </button>
-                </div>
-                <form onSubmit={handleSave}>
-                    <InfoRow icon={<FiHome />} label="Şirket Adı" name="companyName" value={company.companyName} required />
-                    <InfoRow icon={<FiMapPin />} label="Adres" name="companyAddress" value={company.companyAddress} required />
-                    <InfoRow icon={<FiMapPin />} label="Şehir" name="city" value={company.city} required />
-                    <InfoRow icon={<FiPhone />} label="Telefon" name="companyPhoneNumber" value={company.companyPhoneNumber} />
-                    <InfoRow icon={<FiMail />} label="E-posta" name="companyEmail" value={company.companyEmail} type="email" disabled />
-                    <InfoRow icon={<FiShield />} label="Vergi No" name="taxNo" value={company.taxNo ||""} type="text"  />
-                    <InfoRow
-                        icon={<FiCalendar />}
-                        label="Kuruluş Tarihi"
-                        name="foundationDate"
-                        value={company.foundationDate ? company.foundationDate.slice(0, 10) : ""}
-                        type="date"
-                        required
-                    />
-                    <InfoRow icon={<FiShield />} label="Üyelik Tipi" name="subscriptionType" value={company.subscriptionType} disabled />
-                    <InfoRow icon={<FiCalendar />} label="Başlangıç" name="subscriptionStart" value={company.subscriptionStart?.slice(0, 10)} disabled />
-                    <InfoRow icon={<FiCalendar />} label="Bitiş" name="subscriptionEnd" value={company.subscriptionEnd?.slice(0, 10)} disabled />
-
-                    {error && <div className="alert alert-danger mt-3">{error}</div>}
-                    {success && <div className="alert alert-success mt-3">{success}</div>}
-
-                    {editMode && (
-                        <div className="d-flex justify-content-end mt-4">
-                            <button type="submit" className="btn btn-success">
-                                Kaydet
+                    <h3 className="fw-bold mb-0" style={{ letterSpacing: 1 }}>Şirket Bilgileri</h3>
+                    <div>
+                        {!editMode ? (
+                            <button className="btn btn-warning px-3" onClick={() => setEditMode(true)}>
+                                <FiEdit2 size={18} /> Düzenle
                             </button>
-                        </div>
-                    )}
+                        ) : (
+                            <>
+                                <button type="button" className="btn btn-secondary px-3 me-2" onClick={handleCancel}>
+                                    Vazgeç
+                                </button>
+                                <button type="submit" className="btn btn-success px-3" form="company-info-form">
+                                    Kaydet
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                <form id="company-info-form" onSubmit={handleSave} autoComplete="off">
+                    {/* Bilgi Alanları */}
+                    <Field icon={<FiHome />} label="Şirket Adı" name="companyName"
+                           value={company.companyName} onChange={handleChange}
+                           required readOnly={!editMode} />
+
+                    <Field icon={<FiMapPin />} label="Adres" name="companyAddress"
+                           value={company.companyAddress} onChange={handleChange}
+                           required readOnly={!editMode} />
+
+                    <Field icon={<FiMapPin />} label="Şehir" name="city"
+                           value={company.city} onChange={handleChange}
+                           required readOnly={!editMode} />
+
+                    <Field icon={<FiPhone />} label="Telefon" name="companyPhoneNumber"
+                           value={company.companyPhoneNumber} onChange={handleChange}
+                           readOnly={!editMode} />
+
+                    <Field icon={<FiMail />} label="E-posta" name="companyEmail"
+                           value={company.companyEmail} type="email"
+                           onChange={handleChange} readOnly />
+
+                    <Field icon={<FiShield />} label="Vergi No" name="taxNo"
+                           value={company.taxNo} onChange={handleChange}
+                           readOnly={!editMode} />
+
+                    <Field icon={<FiCalendar />} label="Kuruluş Tarihi" name="foundationDate"
+                           value={company.foundationDate ? company.foundationDate.slice(0, 10) : ""}
+                           type="date"
+                           onChange={handleChange}
+                           required readOnly={!editMode}
+                           max={new Date().toISOString().slice(0, 10)}
+                    />
+
+                    <Field icon={<FiShield />} label="Üyelik Tipi" name="subscriptionType"
+                           value={company.subscriptionType} readOnly />
+
+                    <Field icon={<FiCalendar />} label="Başlangıç" name="subscriptionStart"
+                           value={company.subscriptionStart ? company.subscriptionStart.slice(0, 10) : ""}
+                           readOnly />
+
+                    <Field icon={<FiCalendar />} label="Bitiş" name="subscriptionEnd"
+                           value={company.subscriptionEnd ? company.subscriptionEnd.slice(0, 10) : ""}
+                           readOnly />
                 </form>
+                {error && <div className="alert alert-danger mt-3">{error}</div>}
+                {success && <div className="alert alert-success mt-3">{success}</div>}
             </div>
         </div>
     );
 };
+
+// Gelişmiş Field Componenti
+function Field({
+                   icon,
+                   label,
+                   value,
+                   name,
+                   onChange,
+                   type = "text",
+                   required = false,
+                   readOnly = false,
+                   max,
+               }: {
+    icon: React.ReactNode;
+    label: string;
+    value: string | undefined;
+    name: string;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    type?: string;
+    required?: boolean;
+    readOnly?: boolean;
+    max?: string;
+}) {
+    return (
+        <div className="d-flex align-items-center mb-3">
+            <span style={{ minWidth: 30, color: "#2266aa" }}>{icon}</span>
+            <label htmlFor={name} className="me-3 mb-0" style={{ minWidth: 130, fontWeight: 500 }}>
+                {label}
+            </label>
+            <input
+                type={type}
+                id={name}
+                className="form-control"
+                style={{
+                    maxWidth: 280,
+                    background: readOnly ? "#f4f4f7" : "#fff",
+                    border: readOnly ? "1px solid #e2e4e6" : "1px solid #d0d2d6",
+                    color: "#222",
+                    fontWeight: 500
+                }}
+                name={name}
+                value={value || ""}
+                onChange={onChange}
+                required={required}
+                readOnly={readOnly}
+                max={max}
+                autoComplete="off"
+            />
+        </div>
+    );
+}

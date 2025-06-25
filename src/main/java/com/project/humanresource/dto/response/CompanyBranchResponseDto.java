@@ -3,10 +3,10 @@ package com.project.humanresource.dto.response;
 public record CompanyBranchResponseDto(
         Long id,
         String branchName,
-        String companyBranchAdress,
+        String companyBranchAddress,
         String city,
         String companyBranchPhoneNumber,
-        String companyBranchEmail
+        String companyBranchEmail,
 
-) {
+        boolean active) {
 }

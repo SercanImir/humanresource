@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/manager")
 @RequiredArgsConstructor
-@CrossOrigin("*")
+
 public class CompanyBranchController {
 
 
@@ -50,6 +50,37 @@ public class CompanyBranchController {
                         .data(responseDto)
                 .build());
 
+    }
+
+    @PutMapping("/branches/{id}")
+    public ResponseEntity<BaseResponse<CompanyBranchResponseDto>> updateBranch(
+            @RequestHeader("Authorization")String header,
+            @PathVariable Long id,
+            @RequestBody CompanyBranchRequestDto dto
+    ){
+        String token=header.replace("Bearer ", "").trim();
+        Long userId = jwtManager.getUserIdFromToken(token);
+        CompanyBranchResponseDto responseDto=companyBranchService.updateBranchById(userId,id,dto);
+        return ResponseEntity.ok(BaseResponse.<CompanyBranchResponseDto>builder()
+                        .code(200)
+                        .message("Company Branch Updated")
+                        .data(responseDto)
+                .build());
+    }
+
+    @PostMapping("/branches/{id}/toggle")
+    public ResponseEntity<BaseResponse<CompanyBranchResponseDto>> toggleBranch(
+            @RequestHeader("Authorzation") String header,
+            @PathVariable Long id
+    ){
+        String token=header.replace("Bearer ", "").trim();
+        Long userId = jwtManager.getUserIdFromToken(token);
+        CompanyBranchResponseDto responseDto=companyBranchService.toggleBranchActiveById(userId,id);
+        return ResponseEntity.ok(BaseResponse.<CompanyBranchResponseDto>builder()
+                        .code(200)
+                .message("Company Branch Active/Passive")
+                .data(responseDto)
+                .build());
     }
 
 
