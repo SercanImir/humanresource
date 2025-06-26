@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
     FiPlus, FiHome, FiMapPin, FiPhone, FiMail,
-    FiEdit2, FiX, FiCheck, FiPower
+    FiEdit2, FiX, FiCheck, FiPower, FiTrash2
 } from "react-icons/fi";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Swal from "sweetalert2"
 
 interface BranchDto {
     id: number;
@@ -12,7 +13,7 @@ interface BranchDto {
     city: string;
     companyBranchPhoneNumber: string;
     companyBranchEmail: string;
-    active: boolean;
+    isActive: boolean;
 }
 
 const emptyForm = {
@@ -23,18 +24,21 @@ const emptyForm = {
     companyBranchEmail: "",
 };
 
+const PAGE_SIZE = 10;
+
 export const CompanyBranchesTab: React.FC = () => {
     const [branches, setBranches] = useState<BranchDto[]>([]);
-    const [form, setForm] = useState<Omit<BranchDto, "id" | "active">>(emptyForm);
+    const [form, setForm] = useState<Omit<BranchDto, "id" | "isActive">>(emptyForm);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [page, setPage] = useState(1);
 
     const token = localStorage.getItem("token");
 
-    // Şubeleri getir
+    // Get and sort branches
     const fetchBranches = async () => {
         setLoading(true);
         setError("");
@@ -43,7 +47,13 @@ export const CompanyBranchesTab: React.FC = () => {
                 headers: { Authorization: "Bearer " + token }
             });
             const body = await resp.json();
-            setBranches(Array.isArray(body.data) ? body.data : []);
+            // Sıralama: önce aktif, sonra alfabetik
+            let sorted: BranchDto[] = Array.isArray(body.data) ? [...body.data] : [];
+            sorted.sort((a, b) => {
+                if (a.isActive !== b.isActive) return a.isActive ? -1 : 1;
+                return a.branchName.localeCompare(b.branchName, "tr");
+            });
+            setBranches(sorted);
         } catch {
             setError("Şubeler yüklenemedi.");
         } finally {
@@ -51,10 +61,7 @@ export const CompanyBranchesTab: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        fetchBranches();
-        // eslint-disable-next-line
-    }, []);
+    useEffect(() => { fetchBranches(); }, []);
 
     // Form input değişikliği
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,7 +114,8 @@ export const CompanyBranchesTab: React.FC = () => {
             setEditingId(null);
             setShowForm(false);
             setSuccess(isEditing ? "Şube güncellendi." : "Şube başarıyla eklendi.");
-            fetchBranches();
+            await fetchBranches();
+            setPage(1); // Ekleme sonrası ilk sayfaya dön
         } catch {
             setError("Bir hata oluştu.");
         } finally {
@@ -156,13 +164,64 @@ export const CompanyBranchesTab: React.FC = () => {
                 setError("Durum değiştirilemedi.");
                 return;
             }
-            fetchBranches();
+            await fetchBranches();
         } catch {
             setError("Bir hata oluştu.");
         } finally {
             setLoading(false);
         }
     };
+
+    // Şube silme
+    const handleDelete = async (branchId: number) => {
+        const result = await Swal.fire({
+            title: "Emin misiniz?",
+            text: "Bu şube kalıcı olarak silinecek!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#aaa",
+            confirmButtonText: "Evet, sil!",
+            cancelButtonText: "Vazgeç"
+        });
+        if (!result.isConfirmed) return;
+
+        setLoading(true);
+        setError("");
+        setSuccess("");
+        try {
+            const resp = await fetch(
+                `http://localhost:9090/api/manager/branches/${branchId}`,
+                {
+                    method: "DELETE",
+                    headers: { Authorization: "Bearer " + token }
+                }
+            );
+            if (!resp.ok) {
+                setError("Şube silinemedi.");
+                Swal.fire("Hata", "Şube silinemedi!", "error");
+                return;
+            }
+            await fetchBranches();
+            setSuccess("Şube silindi.");
+            setPage(1);
+            Swal.fire("Başarılı", "Şube silindi.", "success");
+        } catch {
+            setError("Bir hata oluştu.");
+            Swal.fire("Hata", "Bir hata oluştu!", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Sayfalama: sadece mevcut sayfadaki 10'lu renderlansın
+    const totalPages = Math.ceil(branches.length / PAGE_SIZE);
+    const paginatedBranches = branches.slice(
+        (page - 1) * PAGE_SIZE,
+        page * PAGE_SIZE
+    );
+
+    const handlePageChange = (p: number) => setPage(p);
 
     return (
         <div>
@@ -202,6 +261,9 @@ export const CompanyBranchesTab: React.FC = () => {
                         </h5>
                         <form onSubmit={handleSubmit}>
                             <div className="row g-2">
+                                {/* ...inputlar aynı şekilde... */}
+                                {/* Kısa olması için tekrar yazmadım, yukarıdaki kodla aynı */}
+                                {/* (branchName, address, city, phone, email) */}
                                 <div className="col-md-6 col-lg-4">
                                     <div className="input-group">
                                         <span className="input-group-text" style={{ background: "#eef2fb" }}>
@@ -282,12 +344,12 @@ export const CompanyBranchesTab: React.FC = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {branches.length === 0 && (
+                            {paginatedBranches.length === 0 && (
                                 <tr>
                                     <td colSpan={7} className="text-center text-muted py-3">Henüz şube yok.</td>
                                 </tr>
                             )}
-                            {branches.map((b) => (
+                            {paginatedBranches.map((b) => (
                                 <tr key={b.id}>
                                     <td>{b.branchName}</td>
                                     <td>{b.companyBranchAddress}</td>
@@ -296,8 +358,8 @@ export const CompanyBranchesTab: React.FC = () => {
                                     <td>{b.companyBranchEmail}</td>
                                     <td>
                                         <button
-                                            className={`btn btn-sm ${b.active ? "btn-success" : "btn-secondary"}`}
-                                            title={b.active ? "Pasifleştir" : "Aktifleştir"}
+                                            className={`btn btn-sm ${b.isActive ? "btn-success" : "btn-secondary"}`}
+                                            title={b.isActive ? "Pasifleştir" : "Aktifleştir"}
                                             onClick={() => handleToggleActive(b)}
                                         >
                                             <FiPower />
@@ -311,11 +373,19 @@ export const CompanyBranchesTab: React.FC = () => {
                                                 color: "#222",
                                                 border: "none",
                                                 fontWeight: 500,
+                                                marginRight: 4
                                             }}
                                             title="Düzenle"
                                             onClick={() => handleEdit(b)}
                                         >
                                             <FiEdit2 style={{ verticalAlign: -2 }} /> Düzenle
+                                        </button>
+                                        <button
+                                            className="btn btn-sm btn-outline-danger"
+                                            title="Sil"
+                                            onClick={() => handleDelete(b.id)}
+                                        >
+                                            <FiTrash2 style={{ verticalAlign: -2 }} /> Sil
                                         </button>
                                     </td>
                                 </tr>
@@ -323,6 +393,24 @@ export const CompanyBranchesTab: React.FC = () => {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <nav className="mt-4">
+                            <ul className="pagination justify-content-center">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNo => (
+                                    <li key={pageNo} className={`page-item${pageNo === page ? ' active' : ''}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => handlePageChange(pageNo)}
+                                        >
+                                            {pageNo}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                    )}
                 </div>
             </div>
         </div>

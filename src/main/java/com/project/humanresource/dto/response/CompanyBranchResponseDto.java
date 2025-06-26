@@ -8,5 +8,5 @@ public record CompanyBranchResponseDto(
         String companyBranchPhoneNumber,
         String companyBranchEmail,
 
-        boolean active) {
+        boolean isActive) {
 }

@@ -4,6 +4,7 @@ import com.project.humanresource.config.JwtManager;
 import com.project.humanresource.dto.request.CompanyBranchRequestDto;
 import com.project.humanresource.dto.response.BaseResponse;
 import com.project.humanresource.dto.response.CompanyBranchResponseDto;
+import com.project.humanresource.entity.CompanyBranch;
 import com.project.humanresource.service.ICompanyBranchService;
 
 import lombok.RequiredArgsConstructor;
@@ -69,18 +70,34 @@ public class CompanyBranchController {
     }
 
     @PostMapping("/branches/{id}/toggle")
-    public ResponseEntity<BaseResponse<CompanyBranchResponseDto>> toggleBranch(
-            @RequestHeader("Authorzation") String header,
+    public ResponseEntity<BaseResponse<Boolean>> toggleBranch(
+            @RequestHeader("Authorization") String header,
             @PathVariable Long id
     ){
         String token=header.replace("Bearer ", "").trim();
         Long userId = jwtManager.getUserIdFromToken(token);
-        CompanyBranchResponseDto responseDto=companyBranchService.toggleBranchActiveById(userId,id);
-        return ResponseEntity.ok(BaseResponse.<CompanyBranchResponseDto>builder()
+        companyBranchService.toggleBranchActiveById(userId,id);
+        return ResponseEntity.ok(BaseResponse.<Boolean>builder()
                         .code(200)
                 .message("Company Branch Active/Passive")
-                .data(responseDto)
+                .data(true)
                 .build());
+    }
+
+    @DeleteMapping("/branches/{branchId}")
+    public ResponseEntity<BaseResponse<Boolean>> deleteBranch(
+            @RequestHeader("Authorization") String header,
+            @PathVariable Long branchId
+    ){
+        String token=header.replace("Bearer ", "").trim();
+        Long userId = jwtManager.getUserIdFromToken(token);
+       companyBranchService.deleteBranchById(userId,branchId);
+        return ResponseEntity.ok(BaseResponse.<Boolean>builder()
+                        .code(200)
+                        .message("Company Branch Deleted")
+                        .data(true)
+                .build());
+
     }
 
 

@@ -39,6 +39,8 @@ public class CompanyBranchServiceImpl implements ICompanyBranchService {
                 .companyBranchEmail(dto.companyBranchEmail())
                 .city(dto.city())
                 .companyId(companyId)
+
+
                 .build();
         companyBranchRepository.save(branch);
 
@@ -53,7 +55,7 @@ public class CompanyBranchServiceImpl implements ICompanyBranchService {
          Long companyId=employee.getCompanyId();
 
          //Şirketin şubelerini getir.
-        List<CompanyBranch> branches=companyBranchRepository.findAllByCompanyId(companyId);
+        List<CompanyBranch> branches=companyBranchRepository.findByCompanyIdOrderByIsActiveDescBranchNameAsc(companyId);
 
         return branches.stream()
                 .map(this::mapToDto)
@@ -83,17 +85,26 @@ public class CompanyBranchServiceImpl implements ICompanyBranchService {
 
 
     @Override
-    public CompanyBranchResponseDto toggleBranchActiveById(Long userId, Long id) {
+    public void toggleBranchActiveById(Long userId, Long id) {
         Employee employee = employeeRepository.findByUserId(userId)
                 .orElseThrow(()-> new HumanResourceException(ErrorType.USER_NOT_FOUND));
-
         Long companyId=employee.getCompanyId();
+        CompanyBranch branch = companyBranchRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Branch not found"));
+        branch.setActive(!branch.isActive());
+        companyBranchRepository.save(branch);
+    }
 
-        CompanyBranch companyBranch=companyBranchRepository.findByIdAndCompanyId(id,companyId)
-                .orElseThrow(()->new HumanResourceException(ErrorType.COMPANY_BRANCH_NOT_FOUND));
-        companyBranch.setActive(!companyBranch.isActive());
-        companyBranchRepository.save(companyBranch);
-        return mapToDto(companyBranch);
+    @Override
+    public void deleteBranchById(Long branchId, Long userId) {
+        CompanyBranch branch = companyBranchRepository.findById(branchId)
+                .orElseThrow(() -> new RuntimeException("Branch not found"));
+
+        // Kullanıcı bu şirkete ait mi?
+        if (!branch.getCompanyId().equals(userId)) {
+            throw new RuntimeException("Silme yetkiniz yok.");
+        }
+        companyBranchRepository.deleteById(branchId);
     }
 
     public CompanyBranchResponseDto mapToDto(CompanyBranch companyBranch) {

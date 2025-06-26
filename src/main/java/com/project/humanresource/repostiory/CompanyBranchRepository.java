@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface CompanyBranchRepository extends JpaRepository<CompanyBranch, Long> {
 
 
-    List<CompanyBranch> findAllByCompanyId(Long companyId);
+
 
 
 
@@ -18,4 +18,6 @@ public interface CompanyBranchRepository extends JpaRepository<CompanyBranch, Lo
     Optional<CompanyBranch> findByIdAndCompanyId(Long id, Long companyId);
 
     boolean existsByCompanyIdAndBranchName(Long companyId, String s);
+
+    List<CompanyBranch> findByCompanyIdOrderByIsActiveDescBranchNameAsc(Long companyId);
 }
